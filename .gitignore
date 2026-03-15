@@ -1,0 +1,19 @@
+# Entornos virtuales
+venv/
+env/
+.env
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+
+# Data
+data/raw/
+data/processed/
+
+# Jupyter Notebooks (No ignorar notebooks en sí, sino configuraciones)
+.ipynb_checkpoints/
+
+# Archivos del SO
+.DS_Store
+Thumbs.db
