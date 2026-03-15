@@ -36,3 +36,16 @@ El modelo entrega más que una predicción binaria (gana/pierde):
 ## 🧠 Valor Diferencial del Proyecto
 
 El valor principal no recae en ser "el modelo más preciso empíricamente" (accuracy), sino en la **interpretabilidad**, la **cuantificación explícita de incertidumbre** y su capacidad de ser actualizado con nueva evidencia. Su transparencia lo hace una herramienta robusta de apoyo en decisiones estratégicas bajo incertidumbre.
+
+---
+
+## 🚀 Progreso del Proyecto y Registro de Cambios
+
+Hasta el momento, se han completado los siguientes hitos:
+
+1. **Inicialización del Repositorio:** Creación y vinculación del repositorio local con GitHub.
+2. **Setup de Estructura de Data Science:** Se crearon los subdirectorios estándar de trabajo (`data. raw/processed`, `notebooks`, `src`, `models`, `reports/figures`).
+3. **Configuración Inicial:** Intercambio de ignorar archivos pesados e irrelevantes vía `.gitignore` y un contenedor para dependencias en `requirements.txt`.
+4. **Pull Request de Configuración:** Rama `feature/setup-structure` con PR directo a `main`.
+5. **Preparación Taller 2:** Se creó y activó la rama `entregable-taller-2` destinada al entregable académico.
+6. **Migración de Recursos:** Adición del caso de estudio/contexto base `S2_Pensamiento_Critico.pdf` dentro del repositorio de trabajo.
