@@ -1,0 +1,113 @@
+\documentclass[12pt,a4paper]{article}
+
+% --- Paquetes Básicos ---
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{cite}
+
+% --- Configuración de Estilo ---
+\titleformat{\section}{\large\bfseries}{\thesection.}{1em}{}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+
+\title{\textbf{Proyecto de Investigación: Modelos Probabilísticos en Esports}\\ \Large Primera Entrega}
+\author{Julian Jimenez y equipo}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Tema y delimitación inicial}
+
+\textbf{Tema general:} Modelado probabilístico y análisis de datos en deportes electrónicos (Esports).
+
+\textbf{Fenómeno específico:} Estimación de la probabilidad de victoria previa al inicio del encuentro en el entorno competitivo de \textit{Counter-Strike: Global Offensive} (CS:GO). A diferencia de los modelos deportivos tradicionales, se busca integrar variables de rendimiento técnico-táctico bajo un marco de inferencia bayesiana.
+
+\textbf{Unidad de análisis:} Partidas profesionales oficiales (registradas en bases de datos como HLTV.org) llevadas a cabo en formatos de torneo estandarizados. Se analizarán los resultados de los mapas individuales y las series competitivas.
+
+\textbf{Delimitación temporal y contextual:} La investigación se centra en el ecosistema de CS:GO durante la última década (2015--2024), cubriendo la evolución del metajuego moderno. El contexto se limita a equipos de nivel profesional (Tier 1 y Tier 2) donde la disponibilidad de datos estructurados permite una inferencia robusta.
+
+\section{Pregunta de investigación}
+
+¿Cómo puede estimarse la probabilidad posterior de victoria de un equipo profesional de CS:GO mediante un modelo de regresión logística bayesiana que incorpore el rendimiento reciente, el ranking relativo y el desempeño histórico por mapa, cuantificando explícitamente la incertidumbre asociada?
+
+\vspace{1em}
+\noindent \textbf{Declaración de tipo:} Esta es una \textbf{pregunta predictiva} orientada a evaluar el desempeño fuera de muestra (out-of-sample). El enfoque no solo busca identificar al ganador, sino proveer una medida de confianza (intervalos de credibilidad) que los modelos frecuentistas tradicionales suelen omitir.
+
+\section{Mini-protocolo de revisión}
+
+Para garantizar la sistematicidad de la fundamentación teórica, se ejecutó un protocolo de revisión documental basado en la metodología PICOC, adaptado a las necesidades técnicas del proyecto:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{PICOC:} \textbf{P}oblación (Partidas profesionales de CS:GO), \textbf{I}ntervención (Regresión logística bayesiana), \textbf{C}omparación (Modelos de clasificación frecuentista y sistemas ELO), \textbf{O}utcome (Probabilidad posterior e intervalos de credibilidad), \textbf{C}ontexto (Datos de torneos Tier 1 y Tier 2, 2015--2024).
+    \item \textbf{Cadena de búsqueda:} \texttt{("Counter-Strike" OR "CS:GO") AND ("Bayesian" OR "logistic regression") AND ("match prediction" OR "win probability")}. Se consultaron bases de datos como Scopus, IEEE Xplore y ACM Digital Library.
+    \item \textbf{Criterios de inclusión:} (1) Estudios publicados entre 2015 y 2024, (2) Enfoque cuantitativo en predicción de resultados de esports, (3) Modelado de rendimiento técnico-táctico.
+    \item \textbf{Criterios de exclusión:} (1) Investigaciones sobre aspectos sociales o psicológicos del jugador, (2) Análisis de otros géneros (MOBA) sin comparación técnica, (3) Aplicaciones comerciales de apuestas sin rigor metodológico.
+    \item \textbf{Resultado final:} 12 artículos seleccionados para la integración en la síntesis crítica.
+\end{itemize}
+
+\section{Síntesis crítica de la literatura}
+
+La literatura científica en torno a la predicción de resultados en deportes electrónicos ha experimentado un crecimiento acelerado en la última década. Sin embargo, tras una revisión detallada de la producción actual en CS:GO, se identifica que el desarrollo se ha estancado bajo un patrón de enfoques técnicos repetitivos.
+
+\subsection{El dominio técnico de los modelos de regresión frecuentista y ELO}
+El marco de referencia predominante para evaluar la fuerza de un equipo sigue siendo el sistema de puntuación ELO o su evolución, Glicko-2. Estos modelos asumen que la fuerza de los competidores es un valor latente estático que solo varía tras el intercambio de resultados. Si bien estos sistemas son eficaces para generar \textit{rankings} globales, la literatura muestra que fallan al intentar predecir eventos individuales de alta volatilidad, ya que no consideran variables dinámicas como el estado de forma reciente (\textit{momentum}) o la ventaja táctica en mapas específicos. 
+
+\subsection{Limitaciones en métricas y supuestos conductuales}
+La mayoría de las investigaciones técnicas utilizan como métricas de éxito la exactitud (\textit{accuracy}) y el \textit{Brier Score}. Aunque reportan resultados prometedores (62\%--71\%), el supuesto subyacente es que el comportamiento de los jugadores y equipos es ergodizado, es decir, que el rendimiento histórico promedio define el rendimiento futuro inmediato. Esta visión ignora las asimetrías tácticas: un equipo puede ser el número uno del mundo, pero tener un rendimiento significativamente inferior en un mapa como \textit{Anubis} frente a un rival de menor rango.
+
+\subsection{Falta de enfoques probabilísticos interpretables}
+Se observa una tendencia hacia el uso de modelos de ``caja negra'' como Redes Neuronales y \textit{Random Forests}. A pesar de su alta capacidad de ajuste, estos modelos carecen de la interpretabilidad necesaria para la toma de decisiones estratégicas. Un \textit{coach} o un analista no solo necesita saber si el modelo predice una victoria, sino \textbf{por qué} (¿es por el mapa? ¿por el desempeño individual de un jugador clave?). La literatura rara vez aborda el impacto probabilístico individual de estas variables bajo un marco que permita cuantificar la incertidumbre inherente a la competencia.
+
+\section{Identificación del vacío}
+
+Basándose en la síntesis anterior, se define el vacío de investigación como de carácter \textbf{orientado a la incertidumbre y metodológico-empírico}. 
+
+\textbf{Patrón identificado:} Los modelos actuales se centran en la predicción puntual del ganador, ignorando la distribución de probabilidad y la confianza de dicha predicción. 
+
+\textbf{Supuesto subyacente:} Se asume que no existe información suficiente para modelar la incertidumbre del resultado de manera transparente antes de que el partido comience.
+
+\textbf{Limitación y detalle del vacío:} No existe en la literatura consultada un modelo que integre de manera jerárquica el \textit{performance} por mapa con la jerarquía competitiva (ranking) bajo un enfoque de inferencia bayesiana que entregue \textbf{Intervalos de Credibilidad (HDI)}. Este vacío es crítico porque, en un entorno de alta variabilidad como el CS:GO, conocer el margen de error del modelo es tan importante como la predicción misma. 
+
+La falta de un marco que permita actualizar la probabilidad de victoria conforme se revela el mapa del encuentro (\textit{post-veto}) representa una oportunidad de contribución significativa. Los trabajos de \textit{Guintchev} (2021) y \textit{Peralta} (2022) sugieren que la incorporación de distribuciones a priori informadas por el desempeño histórico en mapas específicos es el siguiente hito para alcanzar modelos de analítica deportiva de grado profesional.
+
+\section{Declaración formal de contribución}
+
+Este proyecto se propone contribuir al campo de la analítica de esports mediante el desarrollo y validación de un \textbf{Modelo Predictivo Bayesiano de Categoría Jerárquica}. A diferencia de las aplicaciones convencionales que se limitan a replicar algoritmos de aprendizaje automático estadístico, nuestra contribución se centra en la arquitectura de un modelo que cuantifica el riesgo competitivo.
+
+\textbf{¿Qué haremos?} Desarrollaremos una infraestructura de modelado basada en programación probabilística (usando la librería \textit{PyMC}) que permita a un usuario obtener la probabilidad diegética de victoria de un equipo antes de que se dispare la primera bala en el servidor.
+
+\textbf{¿Con qué datos?} Utilizaremos un dataset estructurado extraído de la API de \textit{PandasScore} y \textit{HLTV.org}, integrando tres dimensiones de datos: (1) El ranking global de equipos como prior de fuerza, (2) El porcentaje de victorias histórico segmentado por los 7 mapas del \textit{active duty}, y (3) Un índice de forma reciente basado en los últimos 5 encuentros disputados.
+
+\textbf{¿Con qué método?} Se implementará una \textbf{regresión logística bayesiana} con hiperparámetros informados. El proceso de inferencia se realizará mediante algoritmos de Cadenas de Markov de Monte Carlo (MCMC) o Inferencia Variacional (ADVI), lo que nos permitirá obtener la distribución posterior de los pesos de cada variable.
+
+\textbf{¿Para qué evaluar?} Evaluaremos no solo la precisión binaria (ganó/perdió), sino la \textit{calibración del modelo}. Buscamos determinar si, cuando el modelo predice un 70\% de probabilidad, el equipo efectivamente gana 7 de cada 10 veces, y si el intervalo de credibilidad del 94\% (HDI) captura adecuadamente la variabilidad del resultado fuera de muestra.
+
+\section{Alcance y viabilidad}
+
+El presente proyecto está diseñado para ejecutarse en un ciclo de 12 semanas (3 meses), siguiendo un flujo de trabajo de ciencia de datos riguroso.
+
+\begin{itemize}
+    \item \textbf{Dataset identificado:} Se utilizará el repositorio histórico de resultados de \textit{HLTV.org} (2020--2024), complementado con el dataset público de \textit{CS:GO Match Results} disponible en Kaggle para pruebas preliminares.
+    \item \textbf{Variable objetivo:} Resultado binario del encuentro (Gana/Pierde).
+    \item \textbf{Variables principales:} 
+    \begin{enumerate}
+        \item \textit{Team Ranking Diff:} Diferencia de puntos en el ranking global.
+        \item \textit{Map Specialization:} Win-rate histórico del equipo en el mapa seleccionado.
+        \item \textit{Momentum:} Ratio de victorias en los últimos 15 días.
+    \end{enumerate}
+    \item \textbf{Modelo propuesto:} Regresión Logística Bayesiana con efectos aleatorios por mapa.
+    \item \textbf{Métricas de éxito:} Log-loss (para penalizar predicciones seguras erróneas), Brier Score y Validación Cruzada (Leave-one-out Cross-validation - LOO).
+\end{itemize}
+
+\textbf{Declaración de exclusión (Lo que NO haremos):} No se realizará análisis de jugadas en tiempo real (in-match), predicción de rendimiento individual de jugadores (mvp), ni se considerarán variables externas como problemas de conexión (\textit{lag}) o cambios de última hora en la alineación (\textit{stand-ins}), dado que estas requieren datos de alta fidelidad no siempre disponibles.
+
+\textbf{Justificación de viabilidad:} El proyecto es viable en 3 meses dado que: (1) Las librerías de modelado probabilístico en Python están maduras, (2) El equipo posee acceso a datos estandarizados que no requieren limpieza masiva de documentos no estructurados, y (3) El alcance se ha delimitado a tres variables maestras altamente predictivas, evitando la redundancia característica de modelos con cientos de atributos de bajo impacto.
+
+\end{document}
