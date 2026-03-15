@@ -49,3 +49,4 @@ Hasta el momento, se han completado los siguientes hitos:
 4. **Pull Request de Configuración:** Rama `feature/setup-structure` con PR directo a `main`.
 5. **Preparación Taller 2:** Se creó y activó la rama `entregable-taller-2` destinada al entregable académico.
 6. **Migración de Recursos:** Adición del caso de estudio/contexto base `S2_Pensamiento_Critico.pdf` dentro del repositorio de trabajo.
+7. **Revisión de Literatura (Taller 2):** Creación del código fuente LaTeX y estructura para el entregable del Taller 2 sobre revisión crítica de literatura, alojados en el directorio `entregable_2/`.
