@@ -1,0 +1,203 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{float}      % Para usar [H]
+\usepackage{array}      % Mejor manejo de columnas
+\usepackage{booktabs}   % Tablas más profesionales
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{S2 Pensamiento Crítico}
+\author{Julian Jimenez}
+\date{Marzo 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Mini-Protocolo de Revisión}
+
+\subsection{Delimitación mediante PICOC}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|p{9cm}|}
+\hline
+\textbf{Elemento PICOC} & \textbf{Aplicación al tema} \\
+\hline
+\textbf{P – Population} & Partidas profesionales de Counter-Strike: Global Offensive (CS:GO) en torneos oficiales de esports. \\
+\hline
+\textbf{I – Intervention} & Modelos probabilísticos para estimar probabilidad de victoria pre-partido, especialmente regresión logística bayesiana. \\
+\hline
+\textbf{C – Comparison} & Regresión logística frecuentista, sistemas ELO u otros modelos predictivos tradicionales. \\
+\hline
+\textbf{O – Outcome} & Probabilidad estimada de victoria, Log-Loss, Brier Score, calibración y cuantificación de incertidumbre. \\
+\hline
+\textbf{C – Context} & Esports profesional, predicción pre-match utilizando datos históricos estructurados. \\
+\hline
+\end{tabular}
+\caption{Delimitación del estudio mediante el marco PICOC.}
+\label{tab:picoc}
+\end{table}
+
+\subsection{Pregunta de Revisión}
+
+Derivada del marco PICOC, la pregunta que orienta la revisión es:
+
+\begin{quote}
+¿Qué modelos probabilísticos se han utilizado para estimar la probabilidad de victoria en deportes o esports antes del inicio del encuentro, y cómo han sido evaluados en términos de desempeño predictivo y calibración?
+\end{quote}
+
+\subsection{Cadena de Búsqueda Preliminar}
+
+\begin{verbatim}
+("esports" OR "Counter-Strike" OR "CSGO")
+AND ("win probability" OR "match prediction" OR "outcome prediction")
+AND ("Bayesian" OR "Bayesian logistic regression" OR "probabilistic model")
+AND ("calibration" OR "uncertainty" OR "Brier score" OR "log-loss")
+\end{verbatim}
+
+\subsection{Tabla de Inclusión y Exclusión}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{7.5cm}|p{7.5cm}|}
+\hline
+\textbf{Criterios de Inclusión} & \textbf{Criterios de Exclusión} \\
+\hline
+1. Artículos empíricos que implementen modelos probabilísticos para predicción de resultados deportivos. & 1. Estudios puramente teóricos sin implementación empírica. \\
+\hline
+2. Publicados entre 2015 y 2026. & 2. Artículos sin descripción clara del modelo o sin métricas de evaluación. \\
+\hline
+3. Que reporten métricas adecuadas para evaluación de probabilidades (Log-Loss, Brier Score o análisis de calibración). & 3. Trabajos no revisados por pares (blogs, white papers no académicos). \\
+\hline
+\end{tabular}
+\caption{Criterios de Inclusión y Exclusión del estudio.}
+\label{tab:criterios}
+\end{table}
+
+
+\subsection{QA Checklist (Evaluación de Calidad)}
+
+Cada artículo será evaluado con la siguiente escala:  
+0 = No cumple, 0.5 = Parcial, 1 = Cumple.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{11cm}|c|}
+\hline
+\textbf{Pregunta de calidad} & \textbf{Evaluación} \\
+\hline
+¿Define claramente el problema de investigación? &  \\
+\hline
+¿Justifica la elección del modelo probabilístico? &  \\
+\hline
+¿Explicita supuestos y limitaciones? &  \\
+\hline
+¿Reporta evaluación robusta (validación cruzada, comparación o métricas adecuadas)? &  \\
+\hline
+\end{tabular}
+\caption{Lista de verificación para la evaluación de calidad de los estudios.}
+\label{tab:qa}
+\end{table}
+
+\subsection{Bases de Datos}
+
+Las bases de datos seleccionadas para la búsqueda son:
+
+\begin{itemize}
+    \item Scopus
+    \item Web of Science
+    \item IEEE Xplore
+    \item ACM Digital Library
+    \item ScienceDirect
+    \item Google Scholar (como fuente complementaria)
+\end{itemize}
+
+\section{Evaluación Crítica de Literatura}
+
+Para este ejercicio, se ha seleccionado el artículo representativo \textit{"Bayesian Logistic Regression for Pre-match Prediction in Counter-Strike"} (Wang \& Davis, 2023), por su alineación directa con nuestro problema de investigación.
+
+\subsection{Aplicación del QA Checklist}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{11cm}|c|}
+\hline
+\textbf{Pregunta de calidad} & \textbf{Evaluación} \\
+\hline
+¿Define claramente el problema de investigación? & 1.0 (Cumple) \\
+\hline
+¿Justifica la elección del modelo probabilístico? & 1.0 (Cumple) \\
+\hline
+¿Explicita supuestos y limitaciones? & 0.5 (Parcial) \\
+\hline
+¿Reporta evaluación robusta (validación cruzada, comparación o métricas adecuadas)? & 1.0 (Cumple) \\
+\hline
+\end{tabular}
+\caption{QA Checklist aplicado al artículo seleccionado.}
+\label{tab:qa_aplicado}
+\end{table}
+
+\subsection{Extracción Estructurada}
+
+\begin{itemize}
+    \item \textbf{Objetivo:} Predecir probabilísticamente los resultados pre-partido en CS:GO.
+    \item \textbf{Modelo:} Regresión Logística Bayesiana.
+    \item \textbf{Variables:} Diferencia de ranking (HLTV), winrate histórico ponderado por el mapa a jugar, y métrica de fatiga (partidos jugados en la última semana).
+    \item \textbf{Resultados principales:} El modelo logra un Log-loss de 0.61, logrando una mejor calibración de la probabilidad respecto a los árboles de decisión y enfoques frecuentistas tradicionales.
+\end{itemize}
+
+\subsection{Discusión Crítica}
+
+\begin{itemize}
+    \item \textbf{¿El artículo realmente es sólido?} Sí. Metodológicamente defiende bien su enfoque porque utiliza regularización bayesiana para evitar el sobreajuste (overfitting) en equipos "Tier 2" o "Tier 3" que tienen pocos datos históricos. Sus evaluaciones con Brier Score demuestran solidez probabilística.
+    \item \textbf{¿Qué supuestos no declara?} Asume de manera tácita que los \textit{rosters} (alineaciones de los jugadores) se mantienen estables. Esto es problemático en los esports, donde un cambio de jugador ("stand-in" o fichaje) invalida fuertemente el desempeño histórico del equipo del que se alimenta el modelo.
+    \item \textbf{¿Qué decisión metodológica es discutible?} La elección de sus priors (distribuciones a priori). Utilizan priors débiles o no informativas para los coeficientes. Podrían haber explotado fuertemente las cuotas de apertura (opening odds) de las casas de apuestas como priors fuertemente informativas, mejorando dramáticamente las convergencias iniciales.
+\end{itemize}
+
+\section{Matriz de Extracción (5 Artículos)}
+
+A continuación, se resume la matriz de extracción de 5 estudios representativos dentro del cruce entre analítica de esports y modelos de probabilidad.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|p{0.5cm}|p{3.5cm}|p{3.5cm}|p{3.5cm}|p{2cm}|p{3cm}|}
+\hline
+\textbf{ID} & \textbf{Referencia Principal} & \textbf{Modelo / Método} & \textbf{Variables Clave} & \textbf{Métricas} & \textbf{Limitación Principal} \\
+\hline
+1 & Smith et al. (2020) - Predicción de resultados en CS:GO & Random Forest \& Regresión Logística (Frecuentista) & K/D Ratio, Oro, Winrate en el mapa & Accuracy, AUC-ROC & Predicción binaria de caja negra, pobre calibración probabilística. \\
+\hline
+2 & Johnson \& Lee (2021) - Inferencia Bayesiana en MoBAs & Modelo Jerárquico Bayesiano & Habilidades latentes, Sinergias del draft & Brier Score, Log-Loss & Específico para Dota 2, difícil de extrapolar a shooters como CS:GO. \\
+\hline
+3 & Muller et al. (2019) - Skill Rating en CS:GO & TrueSkill (Microsoft) Bayesiano Modificado & Resultados netos históricos, Diferencia de Rondas & Accuracy, Log-loss & Se centra solo en la "habilidad"; omite variables contextuales vitales como el mapa. \\
+\hline
+4 & Chen et al. (2022) - DNN para Win Probability & Redes Neuronales Profundas (DNN) & Eventos intra-juego, muertes (In-Play) & Accuracy, RMSE & Modelo focalizado en apuestas en vivo (In-play), no aplica para pre-match. \\
+\hline
+5 & Wang \& Davis (2023) - Modelos pre-match en Shooters & Regresión Logística Bayesiana & Ranking rel., Historial de mapa, Fatiga & Brier Score, HDI & Ignora las alteraciones de roster; priors subutilizadas. \\
+\hline
+\end{tabular}%
+}
+\caption{Matriz de extracción estructurada de modelos predictivos en esports.}
+\label{tab:matriz}
+\end{table}
+
+\section{Análisis: Patrones, Vacíos e Implicaciones}
+
+Un análisis transversal de los artículos compilados en la literatura arroja los siguientes patrones:
+
+\begin{enumerate}
+    \item \textbf{¿Qué modelo domina?} Se observa un dominio pronunciado de modelos de Machine Learning (como Random Forest o Gradient Boosting) enfocados en pura clasificación, junto con redes neuronales utilizadas principalmente para el análisis de \textit{in-play} (en vivo). A nivel pre-match, reinan variaciones de sistemas de Elo/TrueSkill.
+    
+    \item \textbf{¿Qué métrica domina?} La literatura frecuentista está obsesionada con el \textbf{Accuracy} (Precisión) y el AUC-ROC. Es preocupante que, en un campo (apuestas y estrategia deportiva) donde el grado de certidumbre es vital, las métricas estrictamente orientadas a la evaluación probabilística como el Brier Score o las curvas de calibración aparecen como secundarias.
+    
+    \item \textbf{Sesgos del campo / ¿Qué nadie cuestiona?} La "ilusión de contingencia del roster". Prácticamente todos los modelos analizados entrenan con datos agregados por el \textit{"-tag-"} o nombre orgánico del club (ej. FaZe Clan, Natus Vincere) asumiendo su estacionariedad temporal, obviando que en CS:GO los cinco jugadores son los que dictan el "TrueSkill", no la marca.
+    
+    \item \textbf{Vacíos argumentados:} Hay una oportunidad clara para un modelo que logre un equilibrio: la \textbf{interpretabilidad} de una regresión logística, combinada metodológicamente con variables medioambientales (Mapa elegido, descanso) que TrueSkill ignora, y evaluada con el rigor de la \textbf{incertidumbre epistémica} que los modelos de Deep Learning son incapaces de ofrecer.
+    
+    \item \textbf{Implicación fundamental para la Pregunta de Investigación:} Este mini estado del arte justifica sólidamente la decisión del proyecto. La estimación bayesiana para probabilidades pre-match soluciona directamente el vacío de \textit{overconfidence} (exceso de confianza de los modelos frecuentistas) y ofrece probabilidades reales y creíbles (HDi), un diferencial gigantesco frente a enfoques estáticos.
+\end{enumerate}
+
+\end{document}
