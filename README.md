@@ -48,9 +48,19 @@ Para mantener el repositorio liviano y evitar subir archivos CSV pesados, hemos 
 ### ¿Cómo descargar los datos?
 Todos los integrantes del equipo deben configurar su entorno para obtener los datasets. Este proceso **debe hacerlo cada persona individualmente** una única vez para tener acceso a las fuentes de datos pesadas (Kaggle).
 
-#### 1. Instalación de dependencias
-Asegurate de tener instaladas las librerías necesarias ejecutando:
+#### 1. Instalación de dependencias y Entorno Virtual
+Para evitar conflictos con el sistema, crea un entorno virtual antes de instalar:
 ```bash
+# Crear el entorno virtual
+python3 -m venv venv
+
+# Activar el entorno
+# En Linux/Mac:
+source venv/bin/activate
+# En Windows:
+.\venv\Scripts\activate
+
+# Instalar las librerías
 pip install -r requirements.txt
 ```
 
