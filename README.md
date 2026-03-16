@@ -41,71 +41,58 @@ El valor principal no recae en ser "el modelo más preciso empíricamente" (accu
 
 ---
 
-## 🛠️ Guía de Uso del Sistema de Datos
+---
 
-Para mantener el repositorio liviano y evitar subir archivos CSV pesados, hemos implementado un sistema de captura automatizada.
+## 🛠️ Guía de Inicio Rápido (Entorno y Datos)
 
-### ¿Cómo descargar los datos?
-Todos los integrantes del equipo deben configurar su entorno para obtener los datasets. Este proceso **debe hacerlo cada persona individualmente** una única vez para tener acceso a las fuentes de datos pesadas (Kaggle).
+Para mantener el repositorio liviano, **no subimos archivos CSV pesados**. Cada integrante debe configurar su entorno local siguiendo estos pasos:
 
-#### 1. Instalación de dependencias y Entorno Virtual
-Para evitar conflictos con el sistema, crea un entorno virtual antes de instalar:
+### 1. Preparar el Entorno Virtual (venv)
+Es obligatorio usar un entorno virtual para evitar conflictos con las librerías del sistema:
 ```bash
 # Crear el entorno virtual
 python3 -m venv venv
 
-# Activar el entorno
-# En Linux/Mac:
-source venv/bin/activate
-# En Windows:
-.\venv\Scripts\activate
+# ACTIVAR (Hacer esto siempre antes de trabajar)
+source venv/bin/activate  # En Linux/Mac
+# .\venv\Scripts\activate  # En Windows
 
-# Instalar las librerías
+# Instalar dependencias
 pip install -r requirements.txt
 ```
 
-#### 2. Configuración de la API de Kaggle (Paso a Paso)
-Para descargar los datasets maestros que usaremos en el modelo:
-1. **Crear cuenta:** Regístrate en [Kaggle.com](https://www.kaggle.com) si aún no tienes cuenta.
-2. **Generar Token:** Ve a tu perfil (arriba a la derecha) -> **Settings**. Desliza hasta la sección **API** y haz clic en **Create New API Token**. Se descargará un archivo llamado `kaggle.json`.
-3. **Ubicar el Token:**
-   - **Linux/Mac:** Crea una carpeta oculta llamada `.kaggle` en tu home y mueve el archivo allí:
-     ```bash
-     mkdir -p ~/.kaggle
-     mv ~/Downloads/kaggle.json ~/.kaggle/
-     chmod 600 ~/.kaggle/kaggle.json
-     ```
-   - **Windows:** Mueve el archivo a `C:\Users\<TuUsuario>\.kaggle\kaggle.json`.
-4. **Ejecutar Captura:** Una vez configurado el token, corre el script:
-   ```bash
-   python3 src/data/capture_data.py
-   ```
+### 2. Configurar la API de Kaggle (Paso a Paso)
+El script descarga automáticamente datasets de varios GB desde Kaggle. Para esto necesitas una "llave":
+1. **Bajar la llave:** Ve a [Kaggle Settings](https://www.kaggle.com/settings) -> Sección **API** -> Botón **Create New API Token**. Se bajará un archivo `kaggle.json`.
+2. **Ubicar la llave:**
+   - **Linux/Mac:** `mkdir -p ~/.kaggle && mv ~/Downloads/kaggle.json ~/.kaggle/`
+   - **Windows:** Mover a `C:\Users\<Usuario>\.kaggle\kaggle.json`
+3. **SEGURIDAD (Vital):** En Linux ejecuta `chmod 600 ~/.kaggle/kaggle.json`. Si no lo haces, la API dará error.
+4. **ACEPTAR REGLAS:** Ve a estos links y dale al botón **Download** una vez para aceptar términos (si no lo haces dará error 403):
+   - [Dataset Histórico (MateusD)](https://www.kaggle.com/datasets/mateusdmachado/csgo-professional-matches)
+   - [Dataset CS2 (Griffin)](https://www.kaggle.com/datasets/griffindesroches/cs2-hltv-professional-match-statistics-dataset)
 
-**¿Qué hace este script?**
-1. Crea automáticamente la carpeta `data/raw/` si no existe.
-2. Descarga los datasets configurados (ej. `csgo_match_results.csv`) desde GitHub y, próximamente, los de Kaggle usando la API.
-3. Genera un archivo `data_version.txt` para asegurar que todos estemos trabajando con la misma versión de los datos.
+### 3. Descargar los Datos
+Con el entorno activo (`source venv/bin/activate`), ejecuta:
+```bash
+python3 src/data/capture_data.py
+```
 
 ---
 
-## 📂 Inventario de Bases de Datos Identificadas
-
-Tras una búsqueda exhaustiva, hemos seleccionado las siguientes fuentes principales para alimentar nuestro modelo bayesiano:
-
-1. **CS:GO Match Results (2019-2022) [GitHub/hojlund123]:** Dataset principal con resultados de mapas y series (CSV directo).
-2. **Professional Matches Complete [Kaggle]:** Contiene `economy.csv`, `picks.csv` y `players.csv`. Fundamental para variables tácticas.
-3. **CS2 Statistics (2024-2025) [Kaggle]:** Datos actualizados para CS2.
-4. **HLTV Betting & Odds:** Datos históricos de cuotas para utilizarlos como *priors* bayesianos.
+## 📂 Estructura de Datos Generada
+Tras correr el script, tu carpeta `data/raw/` contendrá:
+- `results.csv`: Resultados históricos por mapa.
+- `picks.csv`: Datos de vetos y selecciones de mapas (Crucial para el modelo).
+- `economy.csv`: Valor de equipo por cada ronda jugada.
+- `players.csv`: Rendimiento individual de cada jugador.
+- `cs2_newestcombinedmatches.csv`: Datos actualizados a la versión **CS2 (2024-2025)**.
 
 ---
 
 ## 🚀 Progreso del Proyecto y Registro de Cambios
 
-Hasta el momento, se han completado los siguientes hitos:
-
-1. **Inicialización del Repositorio:** Creación y vinculación del repositorio local con GitHub.
-2. **Setup de Estructura de Data Science:** Se crearon los subdirectorios estándar de trabajo (`data. raw/processed`, `notebooks`, `src`, `models`, `reports/figures`).
-3. **Configuración Inicial:** Intercambio de ignorar archivos pesados e irrelevantes vía `.gitignore` y un contenedor para dependencias en `requirements.txt`.
-4. **Propuesta Técnica Finalizada:** Documento `entrega.tex` de 6 páginas con metodología bayesiana y revisión de literatura.
-5. **Sistema de Captura de Datos:** Implementación de `src/data/capture_data.py` y configuración de descarga automatizada.
-6. **Manejo de Ramas:** Flujo de trabajo con PRs (`First_advance`, `entregable-1`, etc.) garantizando la sincronización del equipo.
+1. **Propuesta Técnica Finalizada:** Documento `entrega.tex` de 6 páginas con metodología bayesiana (MCMC/NUTS) y revisión de literatura.
+2. **Sistema de Captura Robusto:** Integración de `kagglehub` y `requests` para descarga automática y control de versiones.
+3. **Manejo de Ramas:** Estructura organizada por ramas (`First_advance`, `data_download`) y flujo de Pull Requests.
+4. **Entorno Estandarizado:** Uso de `venv` y `requirements.txt` para asegurar que todo el equipo trabaje con las mismas versiones.
