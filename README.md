@@ -50,3 +50,4 @@ Hasta el momento, se han completado los siguientes hitos:
 5. **Preparación Taller 2:** Se creó y activó la rama `entregable-taller-2` destinada al entregable académico.
 6. **Migración de Recursos:** Adición del caso de estudio/contexto base `S2_Pensamiento_Critico.pdf` dentro del repositorio de trabajo.
 7. **Revisión de Literatura (Taller 2):** Creación del código fuente LaTeX y estructura para el entregable del Taller 2 sobre revisión crítica de literatura, alojados en el directorio `entregable_2/`.
+8. **Marco de Análisis Crítico (Taller 1):** Creación y profundización del análisis crítico del artículo base de *CS:GO Analytics* dentro de la rama y directorio `entregable_1/`, aplicando las 7 sub-preguntas de evaluación.
