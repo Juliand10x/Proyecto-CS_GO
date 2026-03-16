@@ -39,6 +39,37 @@ El valor principal no recae en ser "el modelo más preciso empíricamente" (accu
 
 ---
 
+---
+
+## 🛠️ Guía de Uso del Sistema de Datos
+
+Para mantener el repositorio liviano y evitar subir archivos CSV pesados, hemos implementado un sistema de captura automatizada.
+
+### ¿Cómo descargar los datos?
+Todos los integrantes del equipo pueden obtener los mismos datos ejecutando el siguiente comando desde la raíz del proyecto:
+
+```bash
+python src/data/capture_data.py
+```
+
+**¿Qué hace este script?**
+1. Crea automáticamente la carpeta `data/raw/` si no existe.
+2. Descarga los datasets configurados (ej. `csgo_match_results.csv`) directamente desde fuentes públicas.
+3. Genera un archivo `data_version.txt` para asegurar que todos estemos trabajando con la misma versión de los datos.
+
+---
+
+## 📂 Inventario de Bases de Datos Identificadas
+
+Tras una búsqueda exhaustiva, hemos seleccionado las siguientes fuentes principales para alimentar nuestro modelo bayesiano:
+
+1. **CS:GO Match Results (2019-2022) [GitHub/hojlund123]:** Dataset principal con resultados de mapas y series. (Ya integrado en el script).
+2. **Professional Matches Complete [Kaggle/Gabriel Tardochi]:** Dataset exhaustivo con `economy.csv`, `picks.csv` (vetos de mapas) y `players.csv`. Ideal para el análisis de especialización por mapa.
+3. **HLTV Statistics (2024-2025) [Kaggle/Mateus Machado]:** Datos recientes de CS2 para asegurar que el modelo sea válido en la versión actual del juego.
+4. **PandasScore API:** Fuente secundaria para obtener datos en tiempo real de torneos en curso (requiere API Key).
+
+---
+
 ## 🚀 Progreso del Proyecto y Registro de Cambios
 
 Hasta el momento, se han completado los siguientes hitos:
@@ -46,8 +77,6 @@ Hasta el momento, se han completado los siguientes hitos:
 1. **Inicialización del Repositorio:** Creación y vinculación del repositorio local con GitHub.
 2. **Setup de Estructura de Data Science:** Se crearon los subdirectorios estándar de trabajo (`data. raw/processed`, `notebooks`, `src`, `models`, `reports/figures`).
 3. **Configuración Inicial:** Intercambio de ignorar archivos pesados e irrelevantes vía `.gitignore` y un contenedor para dependencias en `requirements.txt`.
-4. **Pull Request de Configuración:** Rama `feature/setup-structure` con PR directo a `main`.
-5. **Preparación Taller 2:** Se creó y activó la rama `entregable-taller-2` destinada al entregable académico.
-6. **Migración de Recursos:** Adición del caso de estudio/contexto base `S2_Pensamiento_Critico.pdf` dentro del repositorio de trabajo.
-7. **Revisión de Literatura (Taller 2):** Creación del código fuente LaTeX y estructura para el entregable del Taller 2 sobre revisión crítica de literatura, alojados en el directorio `entregable_2/`.
-8. **Marco de Análisis Crítico (Taller 1):** Creación y profundización del análisis crítico del artículo base de *CS:GO Analytics* dentro de la rama y directorio `entregable_1/`, aplicando las 7 sub-preguntas de evaluación.
+4. **Propuesta Técnica Finalizada:** Documento `entrega.tex` de 6 páginas con metodología bayesiana y revisión de literatura.
+5. **Sistema de Captura de Datos:** Implementación de `src/data/capture_data.py` y configuración de descarga automatizada.
+6. **Manejo de Ramas:** Flujo de trabajo con PRs (`First_advance`, `entregable-1`, etc.) garantizando la sincronización del equipo.
