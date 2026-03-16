@@ -46,15 +46,34 @@ El valor principal no recae en ser "el modelo más preciso empíricamente" (accu
 Para mantener el repositorio liviano y evitar subir archivos CSV pesados, hemos implementado un sistema de captura automatizada.
 
 ### ¿Cómo descargar los datos?
-Todos los integrantes del equipo pueden obtener los mismos datos ejecutando el siguiente comando desde la raíz del proyecto:
+Todos los integrantes del equipo deben configurar su entorno para obtener los datasets. Este proceso **debe hacerlo cada persona individualmente** una única vez para tener acceso a las fuentes de datos pesadas (Kaggle).
 
+#### 1. Instalación de dependencias
+Asegurate de tener instaladas las librerías necesarias ejecutando:
 ```bash
-python src/data/capture_data.py
+pip install -r requirements.txt
 ```
+
+#### 2. Configuración de la API de Kaggle (Paso a Paso)
+Para descargar los datasets maestros que usaremos en el modelo:
+1. **Crear cuenta:** Regístrate en [Kaggle.com](https://www.kaggle.com) si aún no tienes cuenta.
+2. **Generar Token:** Ve a tu perfil (arriba a la derecha) -> **Settings**. Desliza hasta la sección **API** y haz clic en **Create New API Token**. Se descargará un archivo llamado `kaggle.json`.
+3. **Ubicar el Token:**
+   - **Linux/Mac:** Crea una carpeta oculta llamada `.kaggle` en tu home y mueve el archivo allí:
+     ```bash
+     mkdir -p ~/.kaggle
+     mv ~/Downloads/kaggle.json ~/.kaggle/
+     chmod 600 ~/.kaggle/kaggle.json
+     ```
+   - **Windows:** Mueve el archivo a `C:\Users\<TuUsuario>\.kaggle\kaggle.json`.
+4. **Ejecutar Captura:** Una vez configurado el token, corre el script:
+   ```bash
+   python3 src/data/capture_data.py
+   ```
 
 **¿Qué hace este script?**
 1. Crea automáticamente la carpeta `data/raw/` si no existe.
-2. Descarga los datasets configurados (ej. `csgo_match_results.csv`) directamente desde fuentes públicas.
+2. Descarga los datasets configurados (ej. `csgo_match_results.csv`) desde GitHub y, próximamente, los de Kaggle usando la API.
 3. Genera un archivo `data_version.txt` para asegurar que todos estemos trabajando con la misma versión de los datos.
 
 ---
@@ -63,10 +82,10 @@ python src/data/capture_data.py
 
 Tras una búsqueda exhaustiva, hemos seleccionado las siguientes fuentes principales para alimentar nuestro modelo bayesiano:
 
-1. **CS:GO Match Results (2019-2022) [GitHub/hojlund123]:** Dataset principal con resultados de mapas y series. (Ya integrado en el script).
-2. **Professional Matches Complete [Kaggle/Gabriel Tardochi]:** Dataset exhaustivo con `economy.csv`, `picks.csv` (vetos de mapas) y `players.csv`. Ideal para el análisis de especialización por mapa.
-3. **HLTV Statistics (2024-2025) [Kaggle/Mateus Machado]:** Datos recientes de CS2 para asegurar que el modelo sea válido en la versión actual del juego.
-4. **PandasScore API:** Fuente secundaria para obtener datos en tiempo real de torneos en curso (requiere API Key).
+1. **CS:GO Match Results (2019-2022) [GitHub/hojlund123]:** Dataset principal con resultados de mapas y series (CSV directo).
+2. **Professional Matches Complete [Kaggle]:** Contiene `economy.csv`, `picks.csv` y `players.csv`. Fundamental para variables tácticas.
+3. **CS2 Statistics (2024-2025) [Kaggle]:** Datos actualizados para CS2.
+4. **HLTV Betting & Odds:** Datos históricos de cuotas para utilizarlos como *priors* bayesianos.
 
 ---
 
