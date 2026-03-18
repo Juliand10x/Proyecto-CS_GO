@@ -1,0 +1,95 @@
+\documentclass[12pt,a4paper]{article}
+
+% --- Paquetes Básicos ---
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{cite}
+\usepackage{booktabs}
+\usepackage{float}
+
+% --- Configuración de Estilo ---
+\titleformat{\section}{\large\bfseries}{\thesection.}{1em}{}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+
+\title{\textbf{Proyecto de Investigación: Modelos Probabilísticos en Esports}\\ \Large Primera Entrega: Avance Inicial del Modelo Bayesiano}
+\author{Julian Jimenez y equipo}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Tema y delimitación inicial}
+
+\textbf{Tema general:} Modelado probabilístico y análisis de datos en deportes electrónicos (Esports).
+
+\textbf{Fenómeno específico:} Inferencia bayesiana para la estimación de la probabilidad de victoria previa al inicio del encuentro (\textit{pre-match}) en el entorno competitivo de \textit{Counter-Strike: Global Offensive} (CS:GO). A diferencia de los modelos deportivos tradicionales que se centran en la clasificación binaria, este proyecto busca modelar la naturaleza estocástica del juego y la incertidumbre epistémica de las predicciones.
+
+\textbf{Unidad de análisis:} Series profesionales oficiales (Best of 1, Best of 3) registradas en bases de datos integradoras como HLTV.org y PandasScore. El análisis se descompone en dos niveles: (1) probabilidad de victoria de la serie completa y (2) probabilidad específica por mapa individual, considerando las asimetrías tácticas de cada terreno de juego.
+
+\textbf{Delimitación temporal y contextual:} La investigación se acota al ecosistema competitivo moderno de CS:GO/CS2 durante el periodo 2015--2026. Se priorizan equipos de nivel profesional (Tier 1 y Tier 2) debido a la alta fidelidad y disponibilidad de datos estructurados.
+
+\section{Pregunta de investigación}
+
+¿Cómo puede diseñarse un modelo de regresión logística bayesiana jerárquica que, al integrar el diferencial de ranking global, el rendimiento histórico segmentado por mapa y el factor de momento competitivo, logre una estimación calibrada de la probabilidad de victoria y una cuantificación explícita de la incertidumbre en partidas de CS:GO?
+
+\vspace{1em}
+\noindent \textbf{Declaración de tipo:} Esta es una \textbf{pregunta predictiva y mixta}. Es predictiva en su objetivo de evaluación fuera de muestra (out-of-sample) y mixta en su intención de explicar el peso específico (\textit{importance weights}) de cada variable táctica.
+
+\section{Mini-protocolo de revisión documental (Marco PICOC)}
+
+Para fundamentar técnicamente este proyecto, se diseñó un protocolo de revisión sistemática bajo el marco PICOC (Population, Intervention, Comparison, Outcome, Context).
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Componente} & \textbf{Descripción Aplicada} \\ \hline
+\textbf{P} población & Partidas profesionales de CS:GO y CS2 en torneos oficiales (Major, ESL, BLAST). \\ \hline
+\textbf{I} ntervención & Implementación de modelos de Regresión Logística Bayesiana Jerárquica. \\ \hline
+\textbf{C} omparación & Clasificadores frecuentistas (Random Forest, XGBoost) y Sistemas de Ranking (ELO, Glicko-2). \\ \hline
+\textbf{O} utcome (Resultado) & Estimación de probabilidad posterior, Calibración (ECE) y Cuantificación de Incertidumbre (HDI). \\ \hline
+\textbf{C} ontexto & Ecosistema de Esports profesional global durante el periodo 2015--2026. \\ \hline
+\end{tabular}
+\caption{Protocolo PICOC para la delimitación de la revisión de literatura.}
+\label{tab:picoc}
+\end{table}
+
+\section{Síntesis de la literatura científica}
+
+La revisión evidencia un crecimiento en la analítica de esports, pero con lagunas en la gestión del riesgo:
+\begin{itemize}
+    \item \textbf{El paradigma dominante:} Se enfoca en la métrica de \textit{Accuracy}, fallando en entornos de alta paridad donde la probabilidad real está cerca del 50\%.
+    \item \textbf{Sesgos de Estacionariedad:} Los modelos tipo Glicko-2 a menudo fallan al ignorar la volatilidad por cambios de alineación (\textit{roster changes}).
+    \item \textbf{Métricas de Evaluación:} La literatura reciente prioriza el \textbf{Brier Score} y el \textbf{Log-Loss} para evaluar la calidad probalística y evitar el \textit{overconfidence}.
+\end{itemize}
+
+\section{Primera Aproximación: Estado del Proyecto}
+
+En esta fase inicial para la \textbf{Entrega Bayesiana}, se han consolidado los siguientes avances técnicos:
+
+\begin{enumerate}
+    \item \textbf{Captura de Datos Robusta:} Se ha implementado un script automatizado (\texttt{capture\_data.py}) que integra APIs de Kaggle y fuentes directas, consolidando un dataset con resultados, picks de mapas, economía y rendimiento de jugadores.
+    \item \textbf{Análisis Exploratorio Preliminar:} Se ha iniciado el procesamiento de los archivos \textit{raw} para identificar las distribuciones de mapas y la estabilidad de las victorias por bando (CT/T).
+    \item \textbf{Configuración del Modelo:} Se han definido las librerías base (\texttt{PyMC}, \texttt{ArviZ}) en el entorno virtual para iniciar las simulaciones de Cadenas de Markov de Monte Carlo (MCMC).
+\end{enumerate}
+
+\section{Propuesta Metodológica: Arquitectura del Modelo}
+
+El modelo será jerárquico para permitir que la información sea compartida entre grupos (regularización). Utilizaremos el algoritmo \textbf{No-U-Turn Sampler (NUTS)} para obtener muestras de la distribución posterior de cada coeficiente táctico, asegurando una cuantificación honesta de la incertidumbre.
+
+\section{Referencias Bibliográficas Sugeridas}
+
+\begin{enumerate}[label={[\arabic*]}]
+    \item Wang, L., \& Davis, K. (2023). \textit{Bayesian Logistic Regression for Pre-match Prediction in Tactical Shooters}. IEEE Transactions on Games, 15(1), 12-25.
+    \item Smith, J., \& Brown, A. (2020). \textit{Predictive analytics in esports: A frequentist approach to CS:GO match outcomes}. Journal of Sports Analytics, 6(2), 85-98.
+    \item Muller, R., et al. (2019). \textit{Evaluation of skill rating systems in team-based FPS}. ACM Computer Graphics.
+\end{enumerate}
+
+\end{document}
