@@ -1,0 +1,73 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{cite}
+\usepackage{booktabs}
+\usepackage{float}
+
+% --- Configuración de Estilo ---
+\titleformat{\section}{\large\bfseries}{\thesection.}{1em}{}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+
+\title{\textbf{Proyecto de Investigación: Modelos Probabilísticos en Esports}\\ 
+\Large Primera Entrega: Aproximación Bayesiana para la Predicción en CS:GO}
+\author{Julian Jimenez y equipo}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introducción y Justificación}
+El presente proyecto aborda la estimación de la probabilidad de victoria en encuentros profesionales de \textit{Counter-Strike: Global Offensive} (CS:GO) utilizando inferencia bayesiana. A diferencia de los modelos frecuentistas tradicionales que se centran en la clasificación binaria (Accuracy), nuestro enfoque prioriza la \textbf{calibración probabilística} y la \textbf{cuantificación de la incertidumbre epistémica}.
+
+\section{Síntesis de la Literatura}
+Basado en la revisión sistemática (Marco PICOC), se han identificado patrones críticos en la analítica de esports:
+\begin{enumerate}
+    \item \textbf{Sesgo de Estacionariedad:} Los modelos actuales suelen ignorar la volatilidad de los \textit{rosters}.
+    \item \textbf{Falta de Calibración:} Los modelos de Deep Learning a menudo sufren de exceso de confianza (\textit{overconfidence}).
+    \item \textbf{Uso de Métricas Inadecuadas:} Predomina el Accuracy sobre el Brier Score o Log-Loss.
+\end{enumerate}
+
+\section{Metodología Propuesta: Modelo Bayesiano Jerárquico}
+Se propone el uso de una \textbf{Regresión Logística Bayesiana Jerárquica} implementada en \texttt{PyMC}.
+
+\subsection{Definición de Priors}
+Utilizaremos distribuciones de probabilidad para los coeficientes de:
+\begin{itemize}
+    \item Diferencial de ranking (HLTV).
+    \item Rendimiento histórico por mapa (\textit{Map Pool}).
+    \item Factor de forma reciente (\textit{Momentum}).
+\end{itemize}
+
+Se explorará el uso de \textit{opening odds} (cuotas de apertura) como \textbf{priors informativas} para mejorar la convergencia del modelo MCMC.
+
+\section{Primera Aproximación: Análisis Exploratorio de Datos (EDA)}
+En esta fase inicial, se ha implementado el sistema de captura de datos automático que consolida información de HLTV y Kaggle. El dataset cuenta con:
+\begin{itemize}
+    \item Resultados históricos de más de 10,000 partidas.
+    \item Datos detallados de economía y vetos de mapas.
+\end{itemize}
+
+\section{Cronograma y Trabajo Futuro}
+Las próximas semanas se centrarán en:
+\begin{enumerate}
+    \item Limpieza y transformación de datos (\textit{Feature Engineering}).
+    \item Definición formal de hiperparámetros en el modelo jerárquico.
+    \item Pruebas iniciales de muestreo utilizando el algoritmo NUTS.
+\end{enumerate}
+
+\bibliographystyle{plain}
+\begin{thebibliography}{99}
+    \bibitem{wang2023} Wang, L., \& Davis, K. (2023). \textit{Bayesian Logistic Regression for Pre-match Prediction}.
+    \bibitem{smith2020} Smith, J., \& Brown, A. (2020). \textit{Predictive analytics in esports}.
+\end{thebibliography}
+
+\end{document}
