@@ -1,0 +1,71 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+
+\geometry{margin=2.5cm}
+\titleformat{\section}{\large\bfseries}{\thesection.}{1em}{}
+
+\begin{document}
+
+\begin{center}
+    \Large \textbf{Taller 3 - Diagnóstico de Viabilidad Empírica del Proyecto} \\
+    \vspace{0.3cm}
+    \large \textbf{Proyecto:} \textit{Estimación de Probabilidad de Victoria en CS:GO Pre-match} \\
+    \vspace{0.5cm}
+    \normalsize \textbf{Integrantes:} Julian Jimenez, Julian Duarte, Tomas Rincon \\
+    \textbf{Fecha:} \today
+\end{center}
+
+\vspace{0.8cm}
+
+\section{1. Matriz de Viabilidad Completa}
+
+A continuación se presenta la matriz detallada con las variables fundamentales para la estimación bayesiana de probabilidad de victoria.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|p{3cm}|p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Elemento} & \textbf{Definición actual} & \textbf{Variable propuesta} & \textbf{Fuente de datos} & \textbf{Nivel (Unidad)} & \textbf{Problema identificado} \\ \hline
+\textbf{Var. Dependiente} & Resultado binario de la partida. & \texttt{match\_winner\_1} (Boo: 1 si Team 1 gana, 0 si pierde). & HLTV Dataset (Kaggle: "CS:GO Professional Matches"). & Partida (Match). & Ninguno; el dato es objetivo y etiquetado nativamente. \\ \hline
+\textbf{Var. Indep. 1} & Ranking relativo de los equipos. & \texttt{ranking\_delta} (Dif. logarítmica de puestos en el Top 30). & HLTV Rankings (Scraper/Snapshot histórico). & Equipo (Team ID). & El ranking es un indicador retardado (no captura cambios de roster inmediatos). \\ \hline
+\textbf{Var. Indep. 2} & Desempeño individual agregado. & \texttt{avg\_player\_rating\_3m} (Promedio de Rating 2.0 de los 5 jugadores). & Player Stats (HLTV - 3 months leading to match). & Jugador (agregado por quinteto). & Difícil de rastrear cuando hay sustitutos temporales (\textit{stand-ins}). \\ \hline
+\textbf{Var. Indep. 3} & Historial en el mapa específico. & \texttt{map\_winrate\_6m} (Diferencia de \% de victorias en el mapa a jugar). & Match history (HLTV filtered by Map). & Mapa por Equipo. & Colinealidad con el nivel general del equipo; escasez de datos en mapas nuevos (ej. Anubis). \\ \hline
+\end{tabular}%
+}
+\caption{Matriz de viabilidad empírica para el modelo predictivo de CS:GO.}
+\end{table}
+
+\section{2. Diagnóstico Crítico (Máx. 1 página)}
+
+Basado en el análisis de los datos disponibles y el diseño del proyecto, se plantean los siguientes puntos críticos:
+
+\subsection{Principales limitaciones de datos}
+La limitación terminal más grave recae sobre la \textbf{estacionariedad de los datos}. En CS:GO, el rendimiento de los equipos es altamente volátil debido a parches de juego y cambios constantes en los quintetos iniciales (\textit{rosters}). Además, aunque los datos descriptivos (K/D, Rating) abundan, datos cualitativos vitales como el estado psicológico de los jugadores o la comunicación interna (\textit{voice comms}) no están disponibles en fuentes públicas, limitando el modelo a factores puramente mecánicos y estadísticos.
+
+\subsection{Decisiones tomadas}
+Se ha decidido emplear un modelo de \textbf{Regresión Logística Bayesiana} en lugar de un enfoque clásico de Machine Learning (como Random Forest). Esta decisión se basa en la necesidad de obtener una \textbf{cuantificación de la incertidumbre} (HDI), permitiendo que el modelo admita su propio desconocimiento cuando los datos son insuficientes o contradictorios, algo vital para el análisis de apuestas y estrategia deportiva.
+
+\subsection{Cambios en el proyecto}
+A partir del análisis de viabilidad, se ha decidido \textbf{acotar el alcance} del proyecto exclusivamente al \textbf{Tier 1 Profesional (Top 30 equipos)}. Se descarta el análisis de ligas menores debido a la alta incidencia de irregularidades y la pobre calidad de los datos históricos, lo cual inyectaba ruido excesivo que impedía la convergencia del modelo.
+
+\section{3. Versión Ajustada del Proyecto}
+
+\subsection{Pregunta de Investigación Refinada}
+\textit{¿En qué medida el desempeño individual acumulado (Rating 2.0) y la jerarquía histórica (Ranking HLTV) permiten cuantificar la incertidumbre de victoria en encuentros de élite de CS:GO antes de su inicio?}
+
+\subsection{Breve justificación del cambio}
+El ajuste centra el valor del proyecto en la \textbf{calibración probabilística}. No buscamos simplemente una predicción binaria, sino entender qué tan seguros podemos estar de un resultado. Al refinar el foco a "encuentros de élite", garantizamos que la fuente de datos sea de alta fidelidad, minimizando factores aleatorios de ligas menores.
+
+\end{document}
