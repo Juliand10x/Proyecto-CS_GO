@@ -30,7 +30,7 @@
 
 \section{1. Matriz de Viabilidad Completa}
 
-A continuación se presenta la matriz detallada con las variables fundamentales para la estimación bayesiana de probabilidad de victoria.
+A continuación se presenta la matriz detallada con las variables fundamentales para la estimación bayesiana de probabilidad de victoria en encuentros de élite.
 
 \begin{table}[H]
 \centering
@@ -47,25 +47,41 @@ A continuación se presenta la matriz detallada con las variables fundamentales 
 \caption{Matriz de viabilidad empírica para el modelo predictivo de CS:GO.}
 \end{table}
 
-\section{2. Diagnóstico Crítico (Máx. 1 página)}
+\section{2. Diagnóstico de Diseño (Parte Proceso)}
 
-Basado en el análisis de los datos disponibles y el diseño del proyecto, se plantean los siguientes puntos críticos:
+Como parte del ejercicio de diagnóstico, se responden las siguientes interrogantes clave sobre el diseño actual:
+
+\begin{enumerate}
+    \item \textbf{¿Cuál es el mayor problema de su diseño actual?}
+    El mayor desafío radica en la \textbf{estacionariedad de los datos}. En CS:GO, el rendimiento de los equipos cambia drásticamente con cada actualización del parche; predecir el futuro basándose en un historial estático puede estar sesgado por una realidad competitiva ya obsoleta.
+    
+    \item \textbf{¿Qué variable es más débil?}
+    La variable de **desempeño en el mapa**. Aunque es crucial tácticamente, es estadísticamente ruidosa debido a que el historial puede ser limitado para ciertos mapas poco jugados, distorsionando el poder real del equipo.
+    
+    \item \textbf{¿Qué dato aún no tienen?}
+    Aún no se ha consolidado un \textbf{Pipeline de unión (Join)} automatizado que vincule por fecha cada partida con el ranking histórico exacto de ese día.
+    
+    \item \textbf{¿Qué parte del proyecto probablemente deben cambiar?}
+    Es necesario restringir el alcance del modelo únicamente al \textbf{Tier 1 Profesional}, ya que la inconsistencia de datos en equipos de ligas menores impide la convergencia robusta del modelo Bayesiano.
+\end{enumerate}
+
+\section{3. Diagnóstico Crítico (Entregable Final)}
 
 \subsection{Principales limitaciones de datos}
-La limitación terminal más grave recae sobre la \textbf{estacionariedad de los datos}. En CS:GO, el rendimiento de los equipos es altamente volátil debido a parches de juego y cambios constantes en los quintetos iniciales (\textit{rosters}). Además, aunque los datos descriptivos (K/D, Rating) abundan, datos cualitativos vitales como el estado psicológico de los jugadores o la comunicación interna (\textit{voice comms}) no están disponibles en fuentes públicas, limitando el modelo a factores puramente mecánicos y estadísticos.
+La limitación terminal es la volatilidad de los \textit{rosters}. Además, datos cualitativos vitales como el estado psicológico de los jugadores o la comunicación interna no están disponibles, limitando el modelo a factores puramente mecánicos.
 
 \subsection{Decisiones tomadas}
-Se ha decidido emplear un modelo de \textbf{Regresión Logística Bayesiana} en lugar de un enfoque clásico de Machine Learning (como Random Forest). Esta decisión se basa en la necesidad de obtener una \textbf{cuantificación de la incertidumbre} (HDI), permitiendo que el modelo admita su propio desconocimiento cuando los datos son insuficientes o contradictorios, algo vital para el análisis de apuestas y estrategia deportiva.
+Se ha decidido emplear un modelo de \textbf{Regresión Logística Bayesiana} para obtener una \textbf{cuantificación de la incertidumbre} (HDI), permitiendo que el modelo admita su propio desconocimiento frente a datos contradictorios.
 
 \subsection{Cambios en el proyecto}
-A partir del análisis de viabilidad, se ha decidido \textbf{acotar el alcance} del proyecto exclusivamente al \textbf{Tier 1 Profesional (Top 30 equipos)}. Se descarta el análisis de ligas menores debido a la alta incidencia de irregularidades y la pobre calidad de los datos históricos, lo cual inyectaba ruido excesivo que impedía la convergencia del modelo.
+Se opta por \textbf{acotar el alcance} a equipos Top 30 mundial. Esto garantiza que la fuente de datos sea de alta fidelidad y que los jugadores operen en su máximo potencial, minimizando los factores aleatorios.
 
-\section{3. Versión Ajustada del Proyecto}
+\section{4. Versión Ajustada del Proyecto}
 
 \subsection{Pregunta de Investigación Refinada}
 \textit{¿En qué medida el desempeño individual acumulado (Rating 2.0) y la jerarquía histórica (Ranking HLTV) permiten cuantificar la incertidumbre de victoria en encuentros de élite de CS:GO antes de su inicio?}
 
 \subsection{Breve justificación del cambio}
-El ajuste centra el valor del proyecto en la \textbf{calibración probabilística}. No buscamos simplemente una predicción binaria, sino entender qué tan seguros podemos estar de un resultado. Al refinar el foco a "encuentros de élite", garantizamos que la fuente de datos sea de alta fidelidad, minimizando factores aleatorios de ligas menores.
+El ajuste centra el valor del proyecto en la \textbf{calibración probabilística}. No buscamos simplemente una predicción binaria, sino entender qué tan seguros podemos estar de un resultado dado el historial de élite.
 
 \end{document}
