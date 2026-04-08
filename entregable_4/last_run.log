@@ -1,0 +1,3 @@
+/home/fabri/code/Semestre 4/Pensamiento Crítico 2/Proyecto/entregable_4/eda_final.py:57: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  cs2['winner_t1'] = (cs2['winner'] == 'team1').astype(int)
+EDA completado. Reporte guardado en entregable_4/reporte_eda.md

@@ -1,0 +1,69 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\title{\textbf{Entregable 4: Diseño Metodológico del Proyecto}}
+\author{Grupo de Proyecto - Probabilidad en Esports}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Pregunta de Investigación Refinada}
+¿En qué medida un modelo probabilístico bayesiano, fundamentado en el rendimiento histórico y el contexto competitivo de los mapas, permite estimar y cuantificar la incertidumbre pre-partido en la probabilidad de victoria de competencias profesionales de Counter-Strike?
+
+\section{Tipo de Pregunta y Justificación}
+La pregunta posee un carácter eminentemente \textbf{predictivo}, ya que su finalidad principal es anticipar un desenlace binario estadístico (victoria o derrota) en eventos no observados utilizando observaciones consolidadas ex-ante. Conjuntamente, conserva una dimensión \textbf{explicativa} inherente al paradigma bayesiano, dado que permite dilucidar analíticamente el impacto paramétrico de cada componente del estado (habilidad del roster, vetos de mapas) para formular una distribución posterior estructurada conformada por probabilidades.
+
+\section{Descripción de los Datos}
+El trabajo se nutre de información estadística secundaria y observacional procedente de bases de datos públicas (notablemente \textit{HLTV.org}), consolidadas en Kaggle.
+\begin{itemize}
+    \item \textbf{Estructura:} Datos de \textit{pooled cross-section} organizados por el nivel de agrupamiento del encuentro o \textit{match}. Contiene información multivariante pre-procesada de cada enfrentamiento profesional validado.
+    \item \textbf{Variables Clave:} Agrupamos variables continuas estandarizadas como diferencias de desempeño interequipos (daño promedio \textit{adr\_diff} e impacto de muerte/habilidad \textit{rating\_diff}), y variables discretas tales como el mapa específico donde se desarrolla la partida. 
+    \item \textbf{Acceso:} Todo el repositorio empírico cuenta con disponibilidad en entorno local y de dominio público.
+\end{itemize}
+
+\section{Diseño Metodológico Propuesto}
+La aproximación metodológica se consolida en un diseño \textbf{cuantitativo, analítico y retrospectivo}. La herramienta matemática principal a instrumentar de acuerdo con la evidencia consistirá en una \textbf{Regresión Logística Bayesiana}. A diferencia de enfoques de \textit{Machine Learning} en que se devuelve un único estimado algorítmico o un coeficiente optimizado por funciones de coste puro, nuestro modelo inferirá intervalos con el Método de Markov Chain Monte Carlo (MCMC). El entregable central del análisis consistirá en estimaciones representadas mediante un Intervalo de Mayor Densidad (HDI), encapsulando numéricamente el parámetro de incertidumbre.
+
+\section{Justificación de Coherencia}
+El diseño ostenta coherencia empírica bajo dos consideraciones nodales:
+\begin{itemize}
+    \item \textbf{Alineación Pragmática:} Conocer el devenir binario empuja inherentemente la formulación a una estructura de red \textit{Logit}. Al exigir ``incertidumbre'' en la meta de la investigación, el paso estocástico bayesiano subsana el límite frecuentista.
+    \item \textbf{Viabilidad de los Datos:} Las asunciones y priorizaciones se asientan luego de que las pruebas preliminares del análisis (EDA) evidenciaran la validez direccional explícita entre las variables contínuas provistas de datos y el desenlace (por ejemplo, coeficientes de correlación Pearson consolidados superiores a $0.20$).
+\end{itemize}
+
+\section{Limitaciones del Diseño}
+Se exponen explícitamente tres bordes epistemológicos que moderan el campo de visión del trabajo:
+\begin{enumerate}
+    \item \textbf{Ambigüedad Causal:} Las interacciones identificadas denotan correlación condicionada al sesgo latente. Es inadmisible emitir sentencias taxativas como \textit{``seleccionar tal mapa causa imperativamente rendimientos exactos favorables''}.
+    \item \textbf{Sesgo Estructural de Censura:} Por la índole competitiva (\textit{vetos} o \textit{bans}), ningún equipo profesional es propenso a observar datos empíricos en los mapas que le son sistemáticamente desfavorables, recortando el espectro de observación global posible por cada ecosistema táctico.
+    \item \textbf{Falta de Agentes Internos (Omitidos):} Parches que cambian la física del software, estrés, variables motivacionales del día, o desconexiones en vivo, entre otros, no se engloban al tratarse de un algoritmo estadístico retrospectivo ajeno a contingencias presenciales.
+\end{enumerate}
+
+\section{Matriz de Coherencia Metodológica}
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\textwidth}{@{} l X @{}}
+\toprule
+\textbf{Elemento} & \textbf{Descripción Técnica} \\ 
+\midrule
+\textbf{Pregunta de Inv.} & ¿En qué medida un modelo de regresión logística bayesiana permite estimar y cuantificar la incertidumbre pre-partido en competiciones de Counter-Strike? \\ 
+\textbf{Naturaleza} & Predictiva complementada por factores explicativos. \\ 
+\textbf{Datos} & Set observacional transversal secundario; multivariante. Datos derivados de *scraping* en CSVs documentando métricas previas y mapeados. \\ 
+\textbf{Enfoque Central} & Hipotético-deductivo; numérico observacional sin intervenciones exógenas. \\ 
+\textbf{Técnica Analítica} & Inferencia paramétrica Bayesiana a través de Regresión Logística usando Muestreo Monte Carlo (MCMC Sampling) para intervalos creíbles $HDI$. \\ 
+\textbf{Limitaciones} & Imposibilidad probatoria de relaciones causa-efecto deterministas. Observaciones predeterminadas a padecer sesgo estructural por \textit{vetos de partidas}. \\ 
+\textbf{Resumen (Coherencia)} & El constructo matemático (Logistico-Bayes) es coherente y orgánico para tratar probabilidades finitas ante el \textit{output} de un binario dicotómico (Victoria/Derrota) sujeto a ruido estadístico, respondiendo enteramente al problema investigativo. \\ 
+\bottomrule
+\end{tabularx}
+\caption{Matriz integradora transversal para el análisis en Esports.}
+\end{table}
+
+\end{document}

@@ -1,0 +1,35 @@
+--- Iniciando EDA para Entregable 4 ---
+
+[results.csv]
+Forma: (45773, 19)
+Nulos:
+Series([], dtype: int64)
+Muestra de ganadores procesada.
+
+[picks.csv]
+Forma: (16035, 17)
+Top 5 mapas más jugados (picks):
+Traceback (most recent call last):
+  File "/home/fabri/code/Semestre 4/Pensamiento Crítico 2/Proyecto/.venv/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 3641, in get_loc
+    return self._engine.get_loc(casted_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 168, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 197, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7668, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7676, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'map'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/fabri/code/Semestre 4/Pensamiento Crítico 2/Proyecto/entregable_4/eda_inicial.py", line 61, in <module>
+    main()
+  File "/home/fabri/code/Semestre 4/Pensamiento Crítico 2/Proyecto/entregable_4/eda_inicial.py", line 38, in main
+    print(picks['map'].value_counts().head())
+          ~~~~~^^^^^^^
+  File "/home/fabri/code/Semestre 4/Pensamiento Crítico 2/Proyecto/.venv/lib/python3.12/site-packages/pandas/core/frame.py", line 4378, in __getitem__
+    indexer = self.columns.get_loc(key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fabri/code/Semestre 4/Pensamiento Crítico 2/Proyecto/.venv/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 3648, in get_loc
+    raise KeyError(key) from err
+KeyError: 'map'
