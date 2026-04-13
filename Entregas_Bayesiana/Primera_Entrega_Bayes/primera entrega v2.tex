@@ -70,7 +70,7 @@ juan.rincon14@est.uexternado.edu.co}
 \section{INTRODUCCIÓN}
 
 \justifying
-El presente documento expone la estructuración inicial de un proyecto de investigación enfocado en la analítica de los deportes electrónicos (\textit{esports}). Específicamente, se aborda el reto de estimar la probabilidad de victoria en encuentros profesionales de \textit{Counter-Strike} (CS:GO/CS2). Históricamente, la literatura académica y las aplicaciones comerciales han dependido de clasificadores tradicionales basados en el aprendizaje automático (\textit{Machine Learning}), los cuales tienden a ignorar la naturaleza impredecible del juego al proporcionar predicciones secas sin un margen de error definido. En respuesta a esta deficiencia, esta investigación fundamenta el diseño de un modelo basado en estadística bayesiana. A través de este reporte, se delimita el problema práctico, se plantea la pregunta de investigación central y se estructuran los objetivos metodológicos que guiarán la evaluación del riesgo y la certidumbre en este entorno competitivo.
+El presente documento expone la estructuración inicial de un proyecto de investigación enfocado en la analítica de los deportes electrónicos (\textit{esports}). Específicamente, se aborda el reto de estimar la probabilidad de victoria en encuentros profesionales de \textit{Counter-Strike} (CS:GO/CS2). Históricamente, la literatura académica y las aplicaciones comerciales han dependido de clasificadores tradicionales basados en el aprendizaje automático (\textit{Machine Learning}), los cuales tienden a ignorar la naturaleza impredecible del juego al proporcionar predicciones secas sin un margen de error definido. En respuesta a esta deficiencia, esta investigación fundamenta el diseño de un modelo basado en estadística bayesiana. A través de este reporte, se delimita el problema práctico, se plantea la pregunta de investigación central y se estructuran los objetivos metodológicos que guiarán la evaluación del riesgo y la certidumbre en este entorno competitivo. El resto del manuscrito se organiza de forma secuencial: la sección 2 plantea la problemática técnica; la sección 3 establece los objetivos del estudio; y la sección 4 detalla el análisis exploratorio de los datos junto con las hipótesis de modelado.
 
 \section{PLANTEAMIENTO DEL PROBLEMA}
 
@@ -127,7 +127,24 @@ Para construir la estructura de nuestro pronóstico, seleccionamos cuatro variab
 \end{itemize}
 
 \subsection{Análisis Descriptivo}
-Al revisar las métricas descriptivas básicas, nos encontramos con un conjunto enorme de decenas de miles de registros competitivos. Empezando nuestra rutina de limpieza (\textit{Data Cleaning}), detectamos que faltaban muchos datos (\textbf{valores perdidos}) en los primeros años del circuito profesional. Antes de 2016, casi no se registraban métricas fundamentales como la estrategia económica o qué mapas prohibían los capitanes previamente (\textit{Picks} y \textit{Bans}). Para evitar que estos vacíos de información o ``NaNs'' confundieran a nuestro modelo, decidimos filtrar la base y conservar únicamente los datos íntegros de la era moderna competitiva (2016 en adelante).
+Al revisar las métricas descriptivas básicas (Tabla \ref{tab:resumen_stats}), nos encontramos con un conjunto enorme de decenas de miles de registros competitivos. Empezando nuestra rutina de limpieza (\textit{Data Cleaning}), detectamos que faltaban muchos datos (\textbf{valores perdidos}) en los primeros años del circuito profesional. Antes de 2016, casi no se registraban métricas fundamentales como la estrategia económica o qué mapas prohibían los capitanes previamente (\textit{Picks} y \textit{Bans}). Para evitar que estos vacíos de información o "NaNs" confundieran a nuestro modelo, decidimos filtrar la base y conservar únicamente los datos íntegros de la era moderna competitiva (2016 en adelante).
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Métrica} & \textbf{Rank Diff} & \textbf{Momentum} & \textbf{Win Rate} \\ \midrule
+Media            & -0.03              & -0.04             & 0.50              \\
+Desv. Est.       & 15.05              & 2.01              & 0.50              \\
+Mínimo           & -58.84             & -4.00             & 0.00              \\
+25\%             & -10.09             & -1.00             & 0.00              \\
+50\% (Mediana)   & -0.04              & 0.00              & 0.00              \\
+75\%             & 10.07              & 1.00              & 1.00              \\
+Máximo           & 58.89              & 4.00              & 1.00              \\ \bottomrule
+\end{tabular}
+\caption{Resumen estadístico de las variables clave tras la limpieza y balanceo de la muestra (n=10000).}
+\label{tab:resumen_stats}
+\end{table}
 
 Por otro lado, logramos identificar un marcado \textbf{problema de asimetría o desbalance} que es habitual en cualquier deporte principal. Aquellos equipos de élite denominados \textit{Tier 1} (gigantes como \textit{Natus Vincere} o \textit{FaZe Clan}) juegan muchísimos más torneos al año, llegando casi siempre a finales. Por consiguiente, los datos que tenemos tienen una enorme sobre-representación de estos equipos ganadores frente a aquellos equipos en ascenso que quedan eliminados rápido. Conocer este desbalance es exactamente lo que hace valioso emplear un modelo bayesiano jerárquico: un sistema inteligente capaz de calibrar estas injusticias estadísticas al momento predecir equipos con menos trayectoria.
 
@@ -176,5 +193,35 @@ Dentro de la Figura \ref{fig:RachaFig} descubrimos efectivamente y en la prácti
 \end{figure}
 
 Por último, la Figura \ref{fig:BandoFig} funciona operativamente para blindar nuestro modelo predictivo contra el factor "espejismo o error". Calcular la habilidad aislada de un equipo a veces puede parecer sobresaliente, cuando la única verdad estadística del por qué vencieron de forma humillante recae en que iniciaron en un rol y mapa táctico que favorecía a la defensa ininterrumpida.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{EDA/5_distribucion_ranking.png}
+    \caption{Determinación de la Distribución. El histograma y la curva de densidad muestran un comportamiento normalizado, lo que confirma la necesidad de un modelo capaz de distinguir los matices en la zona central de la distribución.}
+    \label{fig:DistFig}
+\end{figure}
+
+Como se observa en la Figura \ref{fig:DistFig}, que la mayoría de los datos se concentren en el centro nos indica que el azar juega un papel enorme. Para nuestro modelo bayesiano, esto funciona como un punto de partida para definir los \textit{priors} o creencias iniciales: sabemos que en la simetría es donde la precisión debe ser mayor. Finalmente, para entender la relación multidimensional de estas variables, presentamos la \textbf{Matriz de Correlación} en la Figura \ref{fig:CorrFig}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{EDA/6_matriz_correlacion.png}
+    \caption{Matriz de Correlación. Visualización gráfica de la dependencia entre el Ranking, el Momentum y el resultado final; se observa una clara vinculación estadística entre el diferencial y la victoria.}
+    \label{fig:CorrFig}
+\end{figure}
+
+\subsection{Presentación de las hipótesis}
+
+Tras la exploración de los datos y la identificación de los patrones de comportamiento en la escena competitiva, se establecen las siguientes hipótesis que guiarán la construcción del modelo probabilístico:
+
+\begin{itemize}
+    \item \textbf{H1 (Impacto del Ranking):} Se espera que el diferencial de ranking sea el predictor con mayor peso en la \textbf{probabilidad posterior}. Sin embargo, en duelos de altísimo nivel (Top 10), este motor perderá fuerza y la \textbf{incertidumbre (varianza)} del modelo crecerá debido a la paridad técnica de los competidores.
+    
+    \item \textbf{H2 (Especialización Táctica):} Planteamos que la victoria no es una cualidad fija del equipo, sino que depende de su rendimiento jerárquico por mapa. Un equipo puede ser significativamente favorecido por su \textit{Map Pool} en un escenario específico (\textit{como Nuke}), lo que justifica el uso de un modelo que aprenda de forma segmentada.
+    
+    \item \textbf{H3 (Inercia Competitiva):} El factor racha (\textit{Momentum}) funciona como un multiplicador de la probabilidad. Nuestra hipótesis es que venir de varias victorias consecutivas inclina la balanza positiva del modelo más allá del ranking, capturando el efecto psicológico que los modelos estáticos ignoran.
+    
+    \item \textbf{H4 (Ajuste por Bando):} Creemos que iniciar en el bando defensor (CT) actúa como una variable de control o sesgo estructural en mapas difíciles. El modelo deberá detectar estadísticamente si la victoria fue producto de la habilidad o de la ventaja natural de la posición inicial.
+\end{itemize}
 
 \end{document}

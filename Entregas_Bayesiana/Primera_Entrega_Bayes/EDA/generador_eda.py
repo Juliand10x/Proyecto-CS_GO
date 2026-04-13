@@ -34,7 +34,7 @@ print("🚀 Generando gráficas de Análisis Exploratorio (EDA)...")
 # =====================================================================
 
 np.random.seed(42)
-n_matches = 2000
+n_matches = 10000
 
 # Ranking diff (Tij)
 # Un diferencial negativo significa que el equipo 1 es mejor (Rank 1 vs Rank 5 -> diff = -4)
@@ -127,8 +127,8 @@ plt.close()
 # GRÁFICA 4: BALANCE DE BANDOS (CT vs T)
 # =====================================================================
 df_bando = pd.DataFrame({
-    'Mapa': ['Nuke', 'Overpass', 'Mirage', 'Inferno', 'Anubis', 'Mac'],
-    'CT_Winrate': [58.5, 54.2, 51.0, 49.5, 45.1, 48.0]
+    'Mapa': ['Nuke', 'Overpass', 'Mirage', 'Inferno', 'Anubis', 'Ancient'],
+    'CT_Winrate': [58.5, 54.2, 51.0, 49.5, 45.1, 52.0]
 })
 df_bando['T_Winrate'] = 100 - df_bando['CT_Winrate']
 df_bando_melt = df_bando.melt(id_vars='Mapa', var_name='Bando', value_name='Winrate')
@@ -146,4 +146,34 @@ plt.tight_layout()
 plt.savefig(os.path.join(GRAFICAS_DIR, "4_balance_ct_t.png"), dpi=300)
 plt.close()
 
-print("✅ Gráficas guardadas con éxito en la carpeta /graficas.")
+# =====================================================================
+# GRÁFICA 5: HISTOGRAMA Y DENSIDAD (Distribución de variables)
+# =====================================================================
+plt.figure(figsize=(10, 6))
+sns.histplot(df_sim['Ranking_Diff'], kde=True, color=MAIN_COLOR, bins=30, alpha=0.6)
+plt.title("Distribución de la Diferencia de Ranking", pad=15)
+plt.xlabel("Diferencial (Eq1 - Eq2)")
+plt.ylabel("Frecuencia")
+plt.tight_layout()
+plt.savefig(os.path.join(GRAFICAS_DIR, "5_distribucion_ranking.png"), dpi=300)
+plt.close()
+
+# =====================================================================
+# GRÁFICA 6: MATRIZ DE CORRELACIÓN (Heatmap)
+# =====================================================================
+plt.figure(figsize=(8, 6))
+corr = df_sim[['Ranking_Diff', 'Momentum_Diff', 'Gana_Equipo_1']].corr()
+sns.heatmap(corr, annot=True, cmap="Blues", fmt=".2f", linewidths=0.5)
+plt.title("Matriz de Correlación de Variables Proyectadas", pad=15)
+plt.tight_layout()
+plt.savefig(os.path.join(GRAFICAS_DIR, "6_matriz_correlacion.png"), dpi=300)
+plt.close()
+
+# =====================================================================
+# EXTRA: RESUMEN ESTADÍSTICO PARA TABLA LATEX
+# =====================================================================
+stats = df_sim[['Ranking_Diff', 'Momentum_Diff', 'Gana_Equipo_1']].describe().round(2)
+stats.to_csv(os.path.join(BASE_DIR, "resumen_estadistico.csv"))
+
+print("✅ Todas las gráficas (incluyendo Distribución y Correlación) han sido generadas.")
+print("📊 Resumen estadístico guardado para la tabla LaTeX.")
