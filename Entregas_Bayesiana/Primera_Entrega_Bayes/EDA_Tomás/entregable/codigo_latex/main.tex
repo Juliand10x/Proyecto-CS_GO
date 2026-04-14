@@ -1,0 +1,324 @@
+\documentclass[twocolumn,10pt]{article}
+\usepackage[letterpaper,left=1.95cm,right=1.95cm,top=2.5cm,bottom=3.16cm]{geometry} % Márgenes y demás
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{balance}
+\usepackage{booktabs}
+\input{parametros.sty}  %%Llama el archivo de los estilos
+
+%%%%%%% ENCABEZADO %%%%%%%%%%%%%%%%%%%%
+
+{\title{\fontsize{16}{16}\selectfont
+\vspace*{-0.7cm}
+\textbf{
+Predecir lo Impredecible: Un Enfoque de Estadística Bayesiana para Estimar Victorias en CS:GO
+} \\[0.2cm]
+\fontsize{12}{12}\selectfont
+\textbf{Predicting the Unpredictable: A Bayesian Statistics Approach to Estimate Win Probability in CS:GO}\\[0.2cm]}
+}
+
+\author[1,*]{\fontsize{10pt}{10pt}\selectfont \textbf{Julián Duarte}}
+\author[2]{\textbf{Julián Jiménez}}
+\author[3]{\textbf{Tomás Rincón}}
+
+
+\affil[1]{
+\fontsize{8pt}{8pt}\selectfont Pregrado Ciencia de Datos Universidad Externado, Bogotá - Colombia}
+\fontsize{8}{8}
+\affil[2]{Pregrado Ciencia de Datos Universidad Externado, Bogotá - Colombia}
+\affil[3]{Pregrado Ciencia de Datos Universidad Externado, Bogotá - Colombia \vspace{0.2cm}} 
+\affil[*]{julian.duarte2@est.uexternado.edu.co \\
+julian.jimenez5@est.uexternado.edu.co \\
+juan.rincon14@est.uexternado.edu.co}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% INICIO DEL DOCUMENTO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\twocolumn[
+  \begin{@twocolumnfalse}
+    \maketitle
+
+    \begin{center}
+        \textbf{RESUMEN}
+    \end{center}
+    Este proyecto de investigación propone una forma novedosa y práctica de estimar quién ganará en partidas profesionales de \textit{Counter-Strike} (CS:GO/CS2), utilizando la estadística bayesiana. A diferencia de los modelos tradicionales que arrojan un simple porcentaje de \textit{gana o pierde}, nuestro enfoque permite medir objetivamente la incertidumbre; es decir, nos dice qué tan seguros estamos de esa predicción. Al integrar factores decisivos —como el escenario o mapa elegido, la habilidad técnica base y la capacidad de impacto de los equipos—, construimos una herramienta matemática transparente y fácil de entender. Esta metodología no solo enriquece la analítica deportiva, sino que dota a organizaciones profesionales e inversores de un instrumento claro para gestionar el riesgo y tomar decisiones sólidas en un ecosistema donde cualquier detalle cambia el resultado final.
+    \vspace{0.2cm}
+
+    \keywordsSpan{Esports, Estadística Bayesiana, CS:GO, Gestión de Riesgo, Incertidumbre.}
+    
+    \vspace{0.6cm}
+
+    \begin{center}
+        \textbf{ABSTRACT}
+    \end{center}
+    This research project proposes a novel and practical approach to estimating who will win in professional \textit{Counter-Strike} (CS:GO/CS2) matches using Bayesian statistics. Unlike traditional models that return a simple \textit{win or lose} percentage, our approach objectively measures uncertainty; that is, it tells us how confident we are in that prediction. By integrating deciding factors—such as the chosen stage or map, technical rating, and impact metrics—we build a transparent and easily understood mathematical tool. This methodology not only enriches sports analytics but also provides professional organizations and investors with a clear instrument to manage risk and make solid decisions in an ecosystem where any detail changes the final outcome.
+    \vspace{0.2cm}
+
+    \keywordsEng{Esports, Bayesian Statistics, CS:GO, Risk Management, Uncertainty.}
+    \vspace{0.8cm}
+  \end{@twocolumnfalse}
+]
+
+\thispagestyle{fancyplain} % Restaurado del estilo oficial
+
+\section{INTRODUCCIÓN}
+
+\justifying
+El ecosistema competitivo de los deportes electrónicos (\textit{esports}\footnote{Deportes electrónicos basados en competiciones de videojuegos organizadas con equipos profesionales y audiencias masivas.}), liderado por títulos como \textit{Counter-Strike} (CS:GO/CS2)\footnote{Counter-Strike: Global Offensive (CS:GO) y su sucesor Counter-Strike 2 (CS2) son videojuegos de disparos tácticos en primera persona desarrollados por Valve, que representan la base del ecosistema competitivo analizado en este estudio.}, se ha consolidado como un entorno de alta densidad de datos que demanda herramientas de análisis de riesgo capaces de profundizar en la probabilidad real de éxito más allá de un simple pronóstico binario. Históricamente, la literatura académica y las aplicaciones comerciales han dependido de clasificadores tradicionales basados en el aprendizaje automático (\textit{Machine Learning}), los cuales, si bien logran precisiones (\textit{accuracy}) aceptables, tienden a ignorar la naturaleza estocástica\footnote{Naturaleza estocástica significa que el sistema tiene un elemento intrínseco de azar o aleatoriedad que no se puede predecir con total exactitud.} del juego al proporcionar predicciones secas sin un margen de error definido. 
+
+En respuesta a esta deficiencia, la presente investigación fundamenta el diseño de un modelo basado en \textbf{Estadística Bayesiana} para estimar la probabilidad posterior de victoria basado en la información previa o \textit{priori}. Hemos optado por un \textbf{enfoque paramétrico} fundamentalmente porque, a diferencia de los modelos no paramétricos (como \textit{K-Nearest Neighbors\footnote{Algoritmo que clasifica nuevos datos basándose en la similitud o "cercanía" con ejemplos ya conocidos del pasado.}}), los paramétricos nos permiten estructurar matemáticamente el conocimiento previo de los expertos mediante distribuciones \textit{prior}, logrando una interpretación clara de cómo cada variable afecta el resultado final, incluso con muestras de datos más acotadas.
+
+La problemática central identificada tras una revisión sistemática en bases de datos indexadas como Web of Science (WoS) y Scopus\footnote{Bases de datos bibliográficas de citas y resúmenes de artículos de revistas científicas.} — utilizando una cadena de búsqueda consolidada centrada en \texttt{('win probability' AND 'Bayesian')} — revela un vacío crítico en la calibración probabilística. Los modelos dominantes sufren de Sobreconfianza (\textit{overconfidence}), especialmente en encuentros de alta paridad técnica, donde el azar y la asimetría de los mapas (\textit{map pool}\footnote{El \textit{map pool} es el conjunto de mapas oficiales permitidos en torneos; cada equipo tiene fortalezas y debilidades específicas según el terreno de juego.}) juegan un papel determinante que los modelos frecuentistas no logran regularizar eficazmente. Delimitando el problema mediante el marco \textbf{PICOC}, se han establecido los objetivos de desarrollar e implementar un sistema predictivo que logre una estimación calibrada, integrando variables de habilidad técnica e impacto táctico.
+
+\subsection{Marco PICOC}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{|l|p{6cm}|}
+\hline
+\textbf{Componente} & \textbf{Descripción Aplicada} \\ \hline
+\textbf{P} (Población) & Partidas profesionales de CS:GO y CS2 en torneos oficiales (Major, ESL, BLAST\footnotemark). \\ \hline
+\textbf{I} (Intervención) & Implementación de modelos de Regresión Logística Bayesiana Jerárquica\footnotemark. \\ \hline
+\textbf{C} (Comparación) & Clasificadores frecuentistas (Random Forest, XGBoost\footnotemark) y Sistemas de Ranking (ELO, Glicko-2\footnotemark). \\ \hline
+\textbf{O} (Outcome) & Estimación de probabilidad posterior\footnotemark, Calibración (ECE) y Cuantificación de Incertidumbre (HDI\footnotemark). \\ \hline
+\textbf{C} (Contexto) & Ecosistema de Esports profesional global durante el periodo 2015--2026. \\ \hline
+\end{tabular}%
+}
+\end{table}
+\addtocounter{footnote}{-5}
+\footnotetext{El `Major' es el campeonato mundial oficial patrocinado por Valve; ESL (Electronic Sports League) es la operadora de torneos más prestigiosa e histórica del circuito; mientras que BLAST representa el formato de producción más moderno y competitivo de la élite actual.}
+\stepcounter{footnote}
+\footnotetext{Un modelo jerárquico permite que el sistema aprenda de las tendencias globales de todos los equipos y, al mismo tiempo, de las particularidades de cada equipo individual.}
+\stepcounter{footnote}
+\footnotetext{Algoritmos de aprendizaje automático utilizados para predecir resultados basados en patrones históricos de datos.}
+\stepcounter{footnote}
+\footnotetext{Sistemas de puntuación matemáticos utilizados para comparar la fuerza relativa entre competidores.}
+\stepcounter{footnote}
+\footnotetext{La probabilidad posterior es el resultado actualizado de nuestra predicción después de haber combinado nuestras creencias iniciales con los datos nuevos del partido.}
+\stepcounter{footnote}
+\footnotetext{ECE (\textit{Expected Calibration Error}) mide qué tan precisas son las probabilidades; HDI (\textit{Highest Density Interval}) es el intervalo bayesiano que contiene los valores más probables.}
+
+\subsection{Estrategia de Búsqueda y Selección (Entrega 3.2)}
+Se realizó una búsqueda estructurada en las principales bases de datos indexadas (Scopus e IEEE Xplore\footnote{Biblioteca digital líder en contenido técnico de tecnología e ingeniería.}) utilizando la cadena: \texttt{('esports' OR 'Counter-Strike') AND ('win probability' OR 'match prediction') AND ('Bayesian' OR 'probabilistic')}. Los criterios de inclusión se centraron en artículos empíricos (2015-2026) que reporten métricas de evaluación probabilística.
+
+\section{PLANTEAMIENTO DEL PROBLEMA}
+
+\subsection{Presentación del Problema}
+
+Los deportes electrónicos (\textit{esports}), y en especial el juego \textit{Counter-Strike} (CS:GO/CS2), se caracterizan por ser muy impredecibles. Hay decenas de tácticas en juego y cualquier detalle, como el terreno donde se juega, puede cambiar el resultado. En la actualidad, la mayoría de las herramientas que intentan predecir quién ganará utilizan modelos matemáticos tradicionales que actúan de una forma muy rígida: se limitan a dar un pronóstico de \textit{blanco o negro} (el equipo gana o pierde).
+
+El problema principal es que estos enfoques ignoran algo fundamental: \textbf{la incertidumbre}. No nos dicen qué margen de error existe tras su predicción. Por ejemplo, si un equipo debuta con nuevos jugadores o hay un cambio drástico en las estrategias globales (\textit{meta-game}), un pronóstico basado solo en el historial pasado nos puede engañar, pues no refleja lo inseguros que deberíamos estar ante un escenario nuevo. En situaciones donde los equipos son muy parejos, necesitamos algo más que un simple porcentaje.
+
+Existe una brecha real, ya que faltan modelos que puedan tener en cuenta:
+\begin{enumerate}[noitemsep]
+    \item Que el rendimiento de un equipo cambia dependiendo del mapa específico que se va a jugar (lo que en el juego se conoce como \textit{map pool}).
+    \item Que la habilidad de un equipo no es fija; mediremos el factor técnico a través del \textit{HLTV Rating}\footnote{El \textit{HLTV Rating 2.0} es la evolución de la métrica estándar de la industria; incluye factores avanzados como el \textit{KAST} (porcentaje de rondas con bajas, asistencias o supervivencia) y el impacto situacional, siendo la métrica más completa del rendimiento individual.}.
+    \item Que necesitamos integrar varias piezas de información juntas para entender el panorama total (incluyendo el \textit{Impact Factor}\footnote{Métrica que cuantifica la capacidad de un jugador para ganar rondas mediante jugadas críticas como eliminaciones iniciales.}).
+\end{enumerate}
+
+Por lo tanto, se hace indispensable trabajar con estadística bayesiana para crear un modelo que no solo trate de \textbf{pronosticar} quién gana, sino que nos muestre un abanico completo de probabilidades. Para lograrlo, implementamos un modelo de \textbf{Regresión Logística}. Elegimos esta arquitectura específica —y no una lineal— porque la victoria es un evento binario; el uso de la función \textit{logit}\footnote{La función \textit{logit} es el logaritmo de los momios (\textit{log-odds}); matemáticamente permite mapear probabilidades acotadas (0 a 1) a una escala lineal infinita, facilitando la estimación estadística de eventos binarios.} nos permite "comprimir" cualquier valor de habilidad técnica en una proporción estrictamente situada entre 0 y 1, lo cual es la definición matemática de una probabilidad de éxito.
+
+\subsection{Pregunta de Investigación}
+
+¿Cómo se puede crear un modelo mediante \textbf{estadística bayesiana} que, al combinar la diferencia en la métrica técnica (Rating) entre los equipos, la distribución de su Impacto en partidas y la influencia táctica asimétrica de cada mapa, logre predecir el resultado de una partida profesional de CS:GO mostrando claramente la incertidumbre y el margen de error probabilístico?
+
+\subsection{Justificación}
+
+Este proyecto es sumamente relevante porque atiende un problema real en los \textit{esports}: la falta de herramientas que ayuden a gestionar el riesgo sin ser incomprensibles. La elección del paradigma Bayesiano se fundamenta como la mejor alternativa técnica frente a la naturaleza de los datos de CS:GO. A diferencia de los modelos tradicionales que sufren de inestabilidad cuando el historial entre dos equipos específicos es corto, el enfoque Bayesiano nos permite realizar una transferencia de información: utilizamos las tendencias globales de miles de partidos (priors) para calibrar y estabilizar las predicciones en enfrentamientos individuales. Esta capacidad de manejar la escasez de datos específicos mediante el conocimiento previo acumulado es lo que garantiza una ventaja competitiva y comercial inalcanzable para los modelos estándar \citep{goldin2021bayesian}.
+
+Más allá del ámbito competitivo pilar, esta tecnología posee un atractivo comercial directo. Para los inversores, casas de apuestas y plataformas de datos que operan en este mercado multimillonario, disponer de un modelo de riesgo propio (con sus correspondientes márgenes) representa una ventaja de negocio inigualable para detectar oportunidades de rentabilidad donde las cuotas de la competencia estén mal calibradas, logrando capitalizar información de valor en un mercado altamente líquido.
+
+\section{OBJETIVOS}
+
+\subsection{Objetivo General}
+
+Desarrollar un modelo predictivo basado en \textbf{estadística bayesiana} que estime la probabilidad de victoria en series profesionales de \textit{Counter-Strike} (CS:GO/CS2), integrando el coeficiente base de habilidad (Rating), la capacidad táctica (Impacto) y el sesgo de bando por mapa, con el fin de instrumentar una herramienta que mida claramente el riesgo y la incertidumbre de cara a decisiones tácticas e inversiones comerciales.
+
+\subsection{Objetivos Específicos}
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Recopilar y estructurar} datos de torneos profesionales de alta competencia (resultados y desempeño por escenario de juego), creando una base de información sólida que permita alimentar los cálculos del algoritmo.
+    \item \textbf{Diseñar la arquitectura matemática} del modelo probabilístico, asegurando que su configuración permita actualizar orgánicamente nuestra percepción sobre la fuerza diferencial técnica partida tras partida.
+    \item \textbf{Validar las estimaciones} del sistema analizando sus ``intervalos de credibilidad''\footnote{Rango de valores dentro del cual el modelo asegura, con un nivel de confianza (ej. 95\%), que se encontrará el resultado real.}, demostrando estadísticamente la enorme ventaja estratégica que supone medir el margen de error real frente a los modelos anticuados.
+\end{itemize}
+
+\section{Análisis Exploratorio de Datos (EDA)}
+Esta sección desglosa la arquitectura de la información que alimenta nuestro motor probabilístico. Los datos no son solo registros numéricos; son la huella digital del comportamiento táctico en la élite de \textit{Counter-Strike}. La fuente primaria es \textit{HLTV.org}\footnote{El sitio web de referencia mundial para estadísticas, noticias y rankings oficiales de Counter-Strike.}, procesada a través de un dataset validado \citep{csgodataset2020} que abarca más de 3,700 enfrentamientos en entornos de alta competencia (\textit{Tier 1} y \textit{Tier 2}\footnote{Tier 1 representa la élite mundial absoluta; Tier 2 es el nivel profesional que compite justo debajo por entrar al circuito principal.}).
+
+Para que nuestro modelo sea confiable, no necesitamos abrumarlo con miles de datos irrelevantes; preferimos seleccionar con precisión solo aquellas variables que realmente dictan el ritmo del juego. Este proceso sigue el \textbf{Principio de Parsimonia}\footnote{En ciencia, es la regla de buscar la explicación más sencilla con el menor número de variables posibles para evitar confusiones en el modelo.}, lo que nos permite separar las métricas que son pilares reales de aquellas que son pura casualidad. Para lograrlo, nos basamos en tres reglas de oro:
+\begin{enumerate}
+    \item \textbf{Independencia del rival:} Que el dato refleje la calidad del equipo y no solo que tuvo un oponente fácil.
+\item \textbf{Capacidad de predicción:} Que exista una relación matemática clara entre la métrica y la victoria. Para esto, como se detalla en la \textbf{Matriz de Correlación (Figura \ref{fig:CorrFig})}, calculamos el \textbf{Coeficiente de Correlación}\footnote{Medida matemática ($r$) que indica qué tan fuerte es la conexión entre dos datos.} y descartamos cualquier variable con una fuerza menor a 0.1, ya que no aportan información útil para la predicción.
+    \item \textbf{Estabilidad temporal:} Que los valores no cambien drásticamente de un día para otro sin una razón lógica.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{|l|l|p{5cm}|}
+\hline
+\textbf{Categoría} & \textbf{Métrica} & \textbf{¿Por qué se usa o se descarta?} \\ \hline
+\textbf{Inclusión} & Dif. Rating\footnotemark & Mide el talento base; es la cifra más estable para predecir quién tiene la ventaja. \\ \hline
+\textbf{Inclusión} & Dif. Impacto\footnotemark & Mide jugadas clave; nos ayuda a entender por qué a veces el equipo débil da la sorpresa. \\ \hline
+\textbf{Exclusión} & Momentum\footnotemark & Es una métrica pasajera; cambia mucho y no refleja la calidad real del equipo a largo plazo. \\ \hline
+\textbf{Exclusión} & Win\% Total\footnotemark & Es un dato engañoso; no tiene en cuenta si las victorias fueron contra equipos fáciles o en mapas difíciles. \\ \hline
+\end{tabular}%
+}
+\caption{Criterios de selección de variables (Señal vs Ruido).}
+\label{tab:seleccion_vars}
+\end{table}
+\addtocounter{footnote}{-3}
+\footnotetext{El Rating refleja el volumen de juego positivo (bajas y daño) de un equipo en comparación con sus rivales.}
+\stepcounter{footnote}
+\footnotetext{El Impacto mide la capacidad de generar ventajas numéricas rápidas que cambian el curso de una ronda.}
+\stepcounter{footnote}
+\footnotetext{El \textit{momentum} se refiere a la supuesta ventaja acumulada por resultados positivos recientes; estadísticamente carece de la estabilidad necesaria para modelos de riesgo a largo plazo.}
+\stepcounter{footnote}
+\footnotetext{El porcentaje de victoria crudo es una métrica de "resultado final" que ignora los matices de qué tan difícil fue el camino para obtener dichos triunfos.}
+
+A partir de este filtro, nos centramos en los tres pilares que definen el éxito en la élite:
+\begin{itemize}
+    \item \textbf{Diferencial de Rating (Habilidad Individual Agregada):} Basado en el \textit{HLTV Rating 2.0}\footnote{Métrica estándar que incluye KAST e impacto situacional para medir el rendimiento individual.}, representa la brecha técnica pura entre ambas escuadras.
+    \item \textbf{Diferencial de Impacto (Potencial de Quiebre):} Cuantifica la capacidad de generar jugadas disruptivas (\textit{multikills}\footnote{Eliminaciones múltiples en una misma ronda (enfrentamiento individual).} realizadas por un solo jugador, \textit{opening kills}\footnote{La primera baja o eliminación de la ronda; es uno de los mejores predictores estadísticos de éxito.}).
+    \item \textbf{Factor de Mapa (Contexto Estructural):} Las asimetrías geográficas de los mapas actúan como un condicionante probabilístico según el bando inicial (CT/T\footnote{Bandos Antiterrorista (CT) y Terrorista (T); el juego es asimétrico por objetivos y diseño de mapa.}).
+\end{itemize}
+
+\subsection{Análisis Descriptivo y Curación de Datos}
+
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Variable} & \textbf{Media} & \textbf{Desv. Est.} & \textbf{Mínimo} & \textbf{Máximo} \\ \hline
+Dif. Rating & 0.02 & 0.12 & -0.65 & 0.72 \\ \hline
+Dif. Impacto & 0.04 & 0.25 & -1.10 & 1.05 \\ \hline
+\end{tabular}%
+}
+\caption{Resumen estadístico de las variables principales (Diferenciales relativos).}
+\label{tab:resumen_stats}
+\end{table}
+
+El historial analizado (Tabla \ref{tab:resumen_stats}) revela una paridad técnica extrema en la escena profesional. Las medias de los diferenciales de habilidad (Rating e Impacto) gravitan cerca de cero, lo que confirma que las organizaciones de alto nivel suelen enfrentarse a rivales de su misma escala competitiva.
+
+El procesamiento esencial consistió en transformar estadísticas individuales en métricas relativas. No nos interesa el valor absoluto del Rating, sino la \textit{ventaja relativa}. Al restar los promedios del Equipo 2 a los del Equipo 1, centramos el problema en un eje de simetría: un valor de 0 indica paridad absoluta, mientras que las desviaciones positivas o negativas marcan el grado de favoritismo teórico. Esta normalización es crítica para que el modelo bayesiano aprenda a "dudar" más cuando los equipos están cerca de ese cero central.
+
+\subsection{Evidencia Visual: Una Historia de Datos}
+Las siguientes gráficas no son meras ilustraciones; constituyen la columna vertebral de nuestra lógica predictiva. Cada una responde a una pregunta crítica sobre la naturaleza del juego.
+
+\textbf{1. La Paridad como Norma:} 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{distribucion_densidad_rating.png}
+    \caption{Distribución de densidad del Diferencial de Rating. La alta concentración en el centro (cero) justifica la necesidad de un modelo bayesiano para capturar la incertidumbre en escenarios de paridad.}
+    \label{fig:DistFig}
+\end{figure}
+La Figura \ref{fig:DistFig} muestra cómo la gran mayoría de los enfrentamientos profesionales ocurren en una zona de "incertidumbre crítica" (cerca del diferencial 0). En este punto, un modelo frecuentista rígido suele fallar, mientras que nuestro enfoque puede cuantificar qué tan probable es que el azar incline la balanza.
+
+\textbf{2. Identificando los Motores de la Victoria:}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{matriz_correlacion_completa.png}
+    \caption{Matriz de correlación. Se observa que el Rating y el Impacto son los predictores con mayor fuerza de asociación directa con el resultado final.}
+    \label{fig:CorrFig}
+\end{figure}
+La Figura \ref{fig:CorrFig} valida nuestra selección de variables. El Rating presenta la correlación más sólida con la victoria (0.26), seguido por el impacto taktico. Esto confirma que, aunque el azar existe, el talento técnico es el factor más estable para predecir el éxito.
+
+\textbf{3. El Talento como Ventaja Determinista:}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{evidencia_rating_winrate.png}
+    \caption{Relación entre Diferencial de Rating y Tasa de Victoria. La tendencia demuestra que superar al rival técnica y consistentemente reduce la incertidumbre del resultado.}
+    \label{fig:WinrateFig}
+\end{figure}
+La Figura \ref{fig:WinrateFig} ilustra cómo una ventaja técnica se traduce en un incremento no lineal de las probabilidades de triunfo. Esta tendencia justifica nuestra elección de un \textbf{modelo paramétrico} sobre uno no paramétrico; la claridad de la estructura nos permite definir parámetros fijos que representan fielmente la mecánica del juego. A raíz de esto, el uso de una función \textbf{logística} es indispensable, ya que permite mapear este crecimiento hacia un rango de 0 a 1, capturando la naturaleza binaria (gana/pierde) de cada enfrentamiento profesional.
+
+\textbf{4. La Volatilidad de la Agresividad:}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{evidencia_impacto_violin.png}
+    \caption{Diagrama de violín del impacto. La dispersión en los extremos sugiere que el impacto el agresivo es un "arma de doble filo" con alta varianza.}
+    \label{fig:ImpactFig}
+\end{figure}
+A diferencia del Rating, el Impacto muestra una dispersión agresiva (Figura \ref{fig:ImpactFig}). Esto nos dice que los equipos explosivos pueden ganar partidas contra rivales superiores, pero su rendimiento es inconsistente, lo que justifica la implementación de \textit{priors} más flexibles para esta variable.
+
+\textbf{5. El Escenario como Condicionante Estructural:}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{balance_ct_t_mapas.png}
+    \caption{Historial de balance por mapa (CT vs T). Algunos mapas favorecen intrínsecamente a un bando, lo que obliga a ajustar la predicción inicial según el entorno de juego.}
+    \label{fig:MapasFig}
+\end{figure}
+Finalmente, la Figura \ref{fig:MapasFig} introduce el contexto ambiental. Si un mapa es históricamente defensivo (favor bando CT), el modelo debe saber que un equipo favorito podría verse en aprietos si comienza en el bando desfavorable.
+
+\subsection{Formulación de Hipótesis}
+A partir de la evidencia visual, establecemos tres expectativas fundamentales que el modelo bayesiano deberá validar:
+
+\begin{itemize}
+    \item \textbf{H1 (Determinismo Técnico):} En encuentros donde el diferencial de Rating sea significativo, este factor dominará la probabilidad posterior, reduciendo drásticamente la incertidumbre a favor del equipo con mayor talento agregado.
+    
+    \item \textbf{H2 (Influencia Volátil):} El impacto táctico, aunque relevante, actuará como un modulador de varianza. Esperamos que el modelo asigne a esta variable una capacidad de "sorpresa" que permita explicar victorias de \textit{underdogs} en días de alto rendimiento individual.
+    
+    \item \textbf{H3 (Sesgo Geográfico):} El escenario físico (mapa) introducirá un ajuste dinámico en la probabilidad base. Prevemos que la ventaja de bando (CT/T) obligue al modelo a realizar compensaciones estructurales, impidiendo que la predicción se base exclusivamente en el talento técnico.
+\end{itemize}
+
+\section{ESPECIFICACIONES DE LAS PRIORS}
+
+Para que el "motor" de nuestro modelo comience a girar, primero debemos alimentarlo con nuestras creencias previas sobre el juego; a esto lo llamamos \textbf{Priors}. Sin embargo, no son simples suposiciones arbitrarias, sino que nacen directamente de la evidencia empírica observada en el análisis de datos (EDA). Este puente entre el análisis descriptivo y el modelo es lo que dota de rigor a la investigación: los hallazgos visuales de las secciones anteriores dictaron la "geometría" de nuestras creencias iniciales. Por ejemplo, la fuerte correlación y estabilidad que observamos en el Diferencial de Rating nos obligó a usar una creencia sólida (informativa), mientras que la alta volatilidad detectada en el Diferencial de Impacto nos llevó a ser más prudentes y flexibles con su configuración. En esencia, el EDA funcionó como la brújula que calibró el punto de partida de nuestro motor probabilístico. Para procesar estas creencias y encontrar la respuesta final, utilizamos el método de \textbf{Monte Carlo por Cadenas de Markov (MCMC)}\footnote{Técnica estadística que simula miles de escenarios posibles para estimar la probabilidad real cuando los datos son complejos.} \citep{gelman2013bayesian}. Podemos imaginarlo como un sistema que "camina" por todo el historial de los partidos, conectando eventos pasados para aprender cuál es el resultado más probable.
+
+Para que este aprendizaje sea equilibrado, diseñamos una \textbf{Estructura Jerárquica}\footnote{Un sistema de aprendizaje por niveles; el modelo mira el comportamiento general de todos los equipos antes de enfocarse en las mañas de un equipo en particular.}. Elegimos este camino porque los partidos de CS:GO no son eventos aislados; los equipos y los mapas forman "grupos" con comportamientos distintos. Esta estructura nos permite aplicar lo que en estadística se llama \textit{Partial Pooling}: el modelo aprende de las tendencias globales de todo el circuito profesional para "ayudar" a las predicciones de equipos nuevos o con pocos datos, evitando que resultados extremos arruinen el pronóstico.
+
+La arquitectura matemática se define mediante la siguiente ecuación de regresión logística, la cual nace de los Modelos Lineales Generalizados (GLM): esta fórmula fue diseñada específicamente para eventos binarios (donde solo hay dos opciones: ganar o perder). La elegimos porque una línea recta tradicional podría predecir resultados absurdos (como una probabilidad de 150\%), mientras que esta ecuación garantiza que el resultado siempre sea un porcentaje lógico entre 0 y 1.
+
+\begin{equation}
+logit(P) = \alpha + \beta_{rtg} \cdot \Delta Rating + \beta_{imp} \cdot \Delta Impact
+\end{equation}
+
+Donde cada componente representa una pieza del rompecabezas táctico:
+\begin{itemize}
+    \item \textbf{$P$}: Es la probabilidad final de victoria del equipo que estamos analizando.
+    \item \textbf{$logit$}: Es la función que "traduce" el mundo de las probabilidades (0 a 1) al mundo de los cálculos matemáticos lineales.
+    \item \textbf{$\alpha$ (Alfa)}: Representa el punto de partida o "sesgo" inicial. Como nuestro modelo es imparcial, este valor suele estar cerca de cero.
+    \item \textbf{$\beta_{rtg}$ (Peso del Rating)}: Es la importancia que el modelo le asigna a la habilidad técnica. Entre más alto sea este valor, más "pesará" el talento en la predicción final.
+    \item \textbf{$\Delta Rating$}: Es la diferencia real en la métrica técnica entre los dos equipos que se enfrentan.
+    \item \textbf{$\beta_{imp}$ (Peso del Impacto)}: Es la importancia asignada a la capacidad de generar jugadas explosivas y disruptivas.
+    \item \textbf{$\Delta Impact$}: Es la diferencia en la métrica de impacto táctico entre ambas escuadras.
+\end{itemize}
+
+Aquí es donde traducimos nuestro conocimiento del juego a números que el modelo puede entender. Definimos tres niveles de "confianza" inicial:
+
+\begin{itemize}
+    \item \textbf{A. Prior Informativa: Diferencial de Rating ($\beta_{rating}$)}\\
+    \textbf{Distribución:} Normal\footnote{Distribución en forma de campana donde la mayoría de los datos se concentran cerca de la media.} $N(\mu = 4.79, \sigma = 1.28)$\newline
+    \textbf{Justificación:} En estadística bayesiana, una "prior informativa" se usa cuando tenemos mucha confianza en un dato. Como el EDA reveló que el Rating es el predictor más estable y potente (Figura \ref{fig:WinrateFig}), usamos una desviación estándar ($\sigma$) pequeña. Esto obliga al modelo a respetar la jerarquía técnica como el factor principal de victoria.
+    
+    \item \textbf{B. Prior Débilmente Informativa: Diferencial de Impacto ($\beta_{impact}$)}\\
+    \textbf{Distribución:} Normal $N(\mu = 1.99, \sigma = 5.00)$\newline
+    \textbf{Justificación:} Una "prior débilmente informativa" se elige cuando sabemos que algo importa, pero no estamos seguros de su constancia. Debido a la alta volatilidad del impacto (Figura \ref{fig:ImpactFig}), usamos una $\sigma$ más amplia (5.00). Esto permite que el modelo sea flexible y no sobreestime jugadas explosivas que pueden ser mera varianza del partido.
+    
+    \item \textbf{C. Prior No Informativa: Intercepto Base ($\alpha$)}\\
+    \textbf{Distribución:} Normal $N(\mu = 0.01, \sigma = 100.0)$\newline
+    \textbf{Justificación:} Una "prior no informativa" se aplica cuando queremos que el modelo sea totalmente imparcial. Al usar una desviación estándar muy alta ($\sigma = 100$), aseguramos que el algoritmo no asigne ventajas a ningún equipo por defecto, permitiendo que la probabilidad nazca puramente de las estadísticas analizadas.
+\end{itemize}
+
+\subsection{Evaluación del Espectro Paramétrico}
+
+La Figura \ref{fig:PriorsComp} es la prueba visual de este equilibrio estratégico. En ella observamos un contraste revelador: mientras que el Rating se muestra como un pico alto y estrecho (lo que indica una creencia muy enfocada y "estricta"), las curvas del Impacto y el Intercepto son colinas mucho más bajas y aplanadas. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{comparativa_priors.png}
+    \caption{Visualización del equilibrio entre priors. Los picos pronunciados representan certezas técnicas, mientras que las curvas aplanadas reflejan la flexibilidad necesaria para factores volátiles.}
+    \label{fig:PriorsComp}
+\end{figure}
+
+Esta combinación es lo que permite una \textbf{Regularización Inteligente}\footnote{Técnica para evitar que el algoritmo se "obsesione" con datos atípicos, manteniendo las predicciones dentro de un marco de sensatez.}: somos severos con lo que ya sabemos que es estable y "amables" con lo que sabemos que es caótico. Al no forzar un rigor excesivo sobre métricas volátiles, protegemos al modelo de cometer los errores típicos de los algoritmos tradicionales, los cuales suelen lanzar predicciones erráticas al intentar encontrar patrones perfectos en datos que, por naturaleza, son impredecibles.
+
+\newpage
+\nocite{*}
+\bibliographystyle{apalike}
+\bibliography{bibliografia}
+\end{document}
