@@ -7,3 +7,5 @@ pymc
 arviz
 matplotlib
 seaborn
+beautifulsoup4
+lxml
