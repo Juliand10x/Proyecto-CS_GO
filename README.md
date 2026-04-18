@@ -8,7 +8,7 @@ Este repositorio contiene el desarrollo del modelo probabilístico para estimar 
 
 **Tema:** Estimación bayesiana de la probabilidad de victoria en partidas profesionales de Counter-Strike: Global Offensive antes del inicio del encuentro.
 
-**Pregunta de investigación:** ¿Cómo puede estimarse la probabilidad posterior de victoria de un equipo profesional de CS:GO mediante un modelo de regresión logística bayesiana que incorpore rendimiento reciente, ranking relativo y desempeño histórico por mapa?
+**Pregunta de investigación:** ¿De qué manera influyen la destreza técnica de los equipos y las ventajas tácticas del mapa en la probabilidad de victoria en CS:GO, y cómo podemos medir qué tan seguros estamos de estos pronósticos ante la naturaleza impredecible del juego?
 
 ---
 

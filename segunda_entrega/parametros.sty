@@ -1,0 +1,73 @@
+\usepackage[utf8]{inputenc}
+\usepackage{wasysym} % symbols
+\usepackage{amssymb} % symbols
+\usepackage{abstract}
+\usepackage{parskip}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{natbib}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{titling}
+\usepackage{caption}
+\usepackage[document]{ragged2e}
+\usepackage[affil-sl]{authblk} 
+\usepackage{mathptmx}  %Times new Roman
+
+\setlength{\columnsep}{1cm}
+\renewcommand{\refname}{BIBLIOGRAFÍA}
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\tablename}{Tabla.}
+\renewcommand{\abstractname}{RESUMEN}
+
+% Keywords command
+\providecommand{\keywordsSpan}[1]
+{
+  \small	
+  \textbf{\textit{Palabras Clave:}} #1
+}
+
+\providecommand{\keywordsEng}[1]
+{
+  \small	
+  \textbf{\textit{Keywords:}} #1
+}
+
+
+%%%%%%%% FORMATO DE LAS SECCIONES Y SUBSECCIONES %%%%%
+\titleformat{\section} 
+	{\normalfont\large\bfseries}{\makebox[30pt][l]{\thesection}}{0pt}{} 
+\titleformat{\subsection} 
+	{\normalfont\large\bfseries }{\makebox[30pt][l]{\thesubsection}}{0pt}{}
+\renewcommand\thesection{\arabic{section}.}
+\renewcommand\thesubsection{\thesection\arabic{subsection}}
+%%%%%%%% FORMATO DE LAS SECCIONES Y SUBSECCIONES %%%%%
+
+
+	
+\makeatletter
+\long\def\@makecaption#1#2{
+\vskip\abovecaptionskip
+\sbox\@tempboxa{#1. #2}
+\ifdim \wd\@tempboxa >\hsize
+#1. #2\par
+\else
+\global \@minipagefalse
+\hb@xt@\hsize{\hfil\box\@tempboxa\hfil}
+\fi
+\vskip\belowcaptionskip}
+\makeatother
+
+
+\pagestyle{fancyplain}% <- pagestyle fancyplain
+
+\fancyfoot[C]{}
+\renewcommand\plainheadrulewidth{.4pt}% headrule on plain pages
+%\fancyhf{}
+\rhead{Semestre 4 Año 2026}
+\lhead{Estadística Bayesiana}
+\rfoot{\thepage}
+
+\date{}
