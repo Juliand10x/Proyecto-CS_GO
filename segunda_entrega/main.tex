@@ -39,7 +39,7 @@ Entrega 02: Diseño Metodológico y EDA - Proyecto CS:GO
     \begin{center}
         \textbf{RESUMEN}
     \end{center}
-    Este documento presenta el diseño metodológico y el análisis exploratorio de datos (EDA) para el proyecto de estimación de probabilidad de victoria en CS:GO mediante estadística bayesiana. Se profundiza en la fundamentación teórica, se definen las estrategias de modelado y se presentan los hallazgos iniciales de la estructura de datos, permitiendo una cuantificación explícita de la incertidumbre en un entorno competitivo de alta volatilidad.
+    Este documento nace de la necesidad de entender mejor la lógica de victoria en el Counter-Strike profesional, un ecosistema tan dinámico que incluso el equipo más fuerte puede ser sorprendido en una sola ronda. A través de un enfoque basado en probabilidades, exploramos miles de partidas reales para ver qué tan seguros podemos estar de un resultado antes de que la partida comience. Nuestra meta es ir más allá de los simples marcadores y descubrir los factores que realmente inclinan la balanza hacia el éxito en el circuito de élite.
     \vspace{0.2cm}
 
     \keywordsSpan{Esports, Estadística Bayesiana, CS:GO, Diseño Metodológico, EDA, Incertidumbre.}
@@ -53,40 +53,78 @@ Entrega 02: Diseño Metodológico y EDA - Proyecto CS:GO
 \section{PROFUNDIZACIÓN DE LA ENTREGA 1}
 
 \subsection{Problema y Pregunta de Investigación Refinados}
-El ecosistema competitivo de CS:GO/CS2 demanda herramientas de análisis de riesgo capaces de gestionar la incertidumbre. Los modelos tradicionales suelen fallar al ignorar la naturaleza estocástica del juego, centrándose únicamente en si un equipo gana o pierde sin cuantificar el margen de error. Nuestra investigación se centra en capturar esta complejidad.
+Imagina la gran final de un Major. Dos equipos de élite están en el servidor, el marcador está empatado y la tensión es absoluta. En las pantallas vemos que un equipo tiene las mejores estadísticas individuales del mundo (su Rating es superior), pero el mapa que se está jugando es la "especialidad" táctica de sus rivales. En ese momento, el espectador —y el analista— se enfrentan a una pregunta que los números fríos no siempre pueden responder: ¿es suficiente el talento puro para superar una desventaja estratégica en un terreno hostil? 
+
+El problema de los modelos de predicción actuales es que nos entregan porcentajes que parecen verdades absolutas, olvidando que en el Counter-Strike el azar y el contexto lo cambian todo en un segundo. No se trata solo de saber quién es "mejor" sobre el papel, sino de entender qué tan frágil es ese pronóstico cuando entra en juego la volatilidad del mapa y la presión del encuentro. En esta investigación, buscamos sumergirnos en esa incertidumbre, pasando de la simple adivinación a una medición real del riesgo. Es en esta intersección entre la destreza técnica y el terreno de juego donde nace nuestra interrogante:
 
 \textbf{Pregunta de investigación:} ¿De qué manera influyen la destreza técnica de los equipos y las ventajas tácticas del mapa en la probabilidad de victoria en CS:GO, y cómo podemos medir qué tan seguros estamos de estos pronósticos ante la naturaleza impredecible del juego?
 
 \subsection{Revisión de Literatura Fortalecida}
-Se ha identificado un vacío crítico en la calibración probabilística de los modelos actuales de Esports. Mientras que la mayoría se enfoca en el \textit{accuracy} (precisión cruda), nuestro enfoque prioriza la gestión del riesgo mediante métricas especializadas:
+Al analizar la literatura científica actual sobre la predicción en Esports, se identifica un \textbf{vacío metodológico fundamental}: la gran mayoría de los estudios se centran exclusivamente en maximizar la precisión cruda (\textit{accuracy}), tratando el desenlace de una partida como si fuera un evento puramente determinista. Esta brecha en el conocimiento ignora que el Counter-Strike es un ecosistema estocástico donde la incertidumbre no es un error, sino una variable clave. No existe un marco consolidado que evalúe qué tan confiables son estos pronósticos en función del contexto táctico.
 
-\begin{itemize}
-    \item \textbf{Brier Score:} Esta métrica es fundamental para evaluar qué tan \textit{calibradas} están nuestras probabilidades. A diferencia de la precisión simple, el Brier Score mide la distancia cuadrática entre la probabilidad asignada y el resultado real, castigando la sobreconfianza en pronósticos erróneos. Un modelo con un buen Brier Score es aquel que no solo acierta, sino que asigna probabilidades realistas a sus aciertos y fallos.
-    \item \textbf{HDI (Highest Density Interval):} En el paradigma bayesiano, el HDI representa el intervalo de la distribución posterior que contiene los valores más probables (por ejemplo, el 95\% de la masa de probabilidad). A diferencia de los intervalos de confianza tradicionales, el HDI nos permite decir con rigor científico en qué rango se encuentra la verdadera probabilidad de victoria, ofreciendo una medida directa de la incertidumbre o "seguridad" del modelo ante cada partida.
-\end{itemize}
+Nuestro estudio busca llenar este vacío mediante un análisis probabilístico sustentado en dos pilares fundamentales:
+
+\textbf{El Brier Score como detector de honestidad:} Esta métrica mide la calidad de nuestras probabilidades y castiga la sobreconfianza ante lo inesperado, asegurando que el modelo permanezca honesto y bien calibrado ante la realidad del servidor.
+
+\textbf{El HDI como brújula de incertidumbre:} Basado en la distribución posterior, este intervalo nos permite delimitar con rigor científico el rango donde reside la verdadera probabilidad de éxito, ofreciendo una medida directa de nuestra "seguridad" ante cada enfrentamiento.
+
+Estas no son solo cifras; son la clave para que nuestro modelo pueda navegar con seguridad entre el talento de los jugadores y la volatilidad del juego profesional.
 
 \section{SECCIÓN DE METODOLOGÍA}
 
 \subsection{Enfoque del Estudio}
-El estudio adopta un enfoque confirmatorio y predictivo bajo el paradigma bayesiano. Se utiliza un modelo paramétrico que permite integrar conocimiento experto mediante distribuciones \textit{prior}.
+Nuestra investigación utiliza estadística bayesiana para tratar de predecir los resultados en el Counter-Strike. Elegimos este método porque nos permite unir lo que ya conocemos del mundo competitivo con los datos de cada encuentro actual. De esta forma, no solo obtenemos un posible ganador, sino que también podemos medir qué tan seguro es nuestro pronóstico, algo fundamental en un deporte electrónico donde cualquier jugada puede cambiar el destino de la partida.
 
 \subsection{Datos}
-Se utiliza el dataset consolidado \texttt{csgo\_games.csv}, el cual integra métricas avanzadas de \textit{HLTV.org} de más de 3,700 enfrentamientos profesionales. Este dataset es fundamental ya que nos permite acceder a los ratings e impactos individuales de cada jugador por equipo, permitiendo una granularidad superior en la definición de las \textit{priors} del modelo.
+Para que nuestro modelo pueda navegar con seguridad en el servidor, se utiliza una base de datos que captura la complejidad técnica del circuito profesional. La fuente principal es el dataset \texttt{csgo\_games.csv}, con registros detallados de más de 3,700 enfrentamientos validados por \textit{HLTV.org}. Estos datos permiten descender hasta el nivel individual, analizando el comportamiento de cada jugador bajo presión.
+
+\begin{table}[!ht]
+\centering
+\caption{Diccionario de Variables del Dataset \texttt{csgo\_games.csv}.}
+\label{tab:data_dictionary}
+\begin{tabular}{lp{5.2cm}}
+\toprule
+\textbf{Categoría} & \textbf{Atributos Específicos} \\
+\midrule
+\textbf{Contexto} & Fecha del encuentro, nombres de equipos (\textit{Team 1/2}) y marcador de puntos. \\
+\textbf{Ranking} & Posición mundial HLTV (\textit{World Rank}) y tasa de victorias cara a cara (\textit{H2H Perc}). \\
+\textbf{Base Técnica} & \textit{Rating 2.0}, Impacto táctico, relación K/D y promedio de daño (\textit{DMR}). \\
+\textbf{Acción} & Bajas, asistencias y muertes por ronda (\textit{KPR, APR, DPR}), y supervivencia (\textit{SPR}). \\
+\textbf{Momentos Clave} & Eficiencia en bajas iniciales (\textit{Opening Kills Ratio/Rating}) y éxito en situaciones de \textit{clutch}. \\
+\textbf{Especialización} & Rol de \textit{Sniper} (binaria), \% de racha de bajas (\textit{Multi-kill}) y \% de rondas con al menos una baja. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Contar con este espectro completo de variables —desde la jerarquía mundial hasta la probabilidad de ganar un \textit{clutch} individual— es lo que nos permitirá descubrir qué factores son los que realmente importan para ganar y cuáles son solo casualidad, ayudándonos a construir un modelo que entienda mejor la realidad del circuito profesional.
 
 \subsection{Estrategia Metodológica}
-La estrategia consiste en:
+Nuestra estrategia consiste en replicar el juicio de un analista profesional mediante cuatro etapas técnicas:
 \begin{enumerate}
-    \item Procesamiento y normalización de variables relativas.
-    \item Definición de \textit{priors} basadas en el análisis descriptivo.
-    \item Muestreo mediante el algoritmo NUTS (No-U-Turn Sampler).
-    \item Validación mediante validación cruzada para series temporales.
+    \item \textbf{Curaduría y Normalización:} Este paso contempla el filtrado de encuentros con datos incompletos y la eliminación de registros atípicos (\textit{outliers}) que no representen el nivel competitivo real. Asimismo, se normalizan métricas técnicas como el \textit{Rating 2.0} para asegurar que todas las variables tengan un peso relativo comparable en el modelo.
+    \item \textbf{Construcción de \textit{Priors} Informadas:} Se establecen expectativas de desempeño basadas en la jerarquía histórica de los equipos antes de analizar los datos del encuentro específico, evitando sesgos por varianza de corto plazo.
+    \item \textbf{Muestreo Computacional (NUTS):} Para resolver las complejas ecuaciones de probabilidad del Counter-Strike, se utiliza el algoritmo \textit{No-U-Turn Sampler} (NUTS). Este método explora millones de combinaciones técnicas para encontrar los parámetros que mejor explican las victorias.
+    \item \textbf{Validación Prospectiva:} Finalmente, se prueba el modelo con encuentros reales que no hayan sido utilizados durante el entrenamiento, permitiendo medir su capacidad operativa en escenarios de alta presión.
 \end{enumerate}
 
 \subsection{Elección y Justificación del Modelo}
-Se ha seleccionado una \textbf{Regresión Logística Bayesiana Jerárquica}. La jerarquización permite el \textit{partial pooling}, mejorando las predicciones para equipos con pocos datos al aprender de la tendencia global del circuito.
+Hemos seleccionado una \textbf{Regresión Logística Bayesiana Jerárquica} por tres razones tácticas que responden a la naturaleza de nuestro deporte electrónico:
+
+\begin{itemize}
+    \item \textbf{Naturaleza Binaria:} Al ser partidas donde solo existe la victoria o la derrota, la regresión logística es la herramienta más natural para obtener una probabilidad de éxito clara (entre 0 y 1).
+    \item \textbf{Respuesta a la Volatilidad (Bayesiana):} A diferencia de los modelos tradicionales que necesitan miles de partidas para ser precisos, el enfoque bayesiano nos permite trabajar con equipos que tienen pocos datos históricos. Al usar \textit{priors}, el modelo puede "aprender" más rápido de la realidad del servidor sin dejarse engañar por anomalías estadísticas.
+    \item \textbf{Estructura de Grupo (\textit{Partial Pooling}):} El Counter-Strike es una jerarquía: los jugadores pertenecen a equipos y los equipos se desempeñan en distintos mapas. Nuestro modelo jerárquico entiende que un equipo de élite seguirá siendo competitivo incluso en un mapa que juegue poco, permitiendo que la información floja entre los diferentes niveles de datos (\textit{partial pooling}), lo que hace que las predicciones sean mucho más robustas ante la falta de registros específicos.
+\end{itemize}
 
 \subsection{Limitaciones}
-El modelo se limita a datos \textit{pre-match}. No considera cambios de alineación de último minuto ni factores psicológicos o ambientales que no estén registrados en las estadísticas oficiales.
+A pesar del rigor estadístico del paradigma bayesiano, nuestra investigación reconoce limitaciones inherentes a la complejidad del ecosistema profesional de Counter-Strike:
+
+\begin{itemize}
+    \item \textbf{Ceguera de Factores Intangibles:} El modelo opera exclusivamente con datos registrados (\textit{pre-match}). Esto implica que factores críticos como la fatiga por viajes, enfermedades repentinas de un jugador o el "clima emocional" tras una derrota en el mapa previo, son invisibles para la estadística paramétrica actual.
+    \item \textbf{Evolución del "Meta":} El Counter-Strike es un ente vivo. Las actualizaciones de balance (\textit{patches}) lanzadas por Valve pueden cambiar la utilidad de un mapa o la efectividad de ciertas armas en un instante. Esto puede hacer que el rendimiento histórico capturado en el dataset pierda relevancia ante un cambio drástico en las mecánicas del juego.
+    \item \textbf{Volatilidad de los \textit{Rosters}:} Aunque nuestro modelo jerárquico mitiga el impacto de los cambios, la salida repentina de un jugador estrella (\textit{star player}) altera la sinergia colectiva de una forma que las estadísticas históricas tardan semanas en procesar y reflejar fielmente.
+    \item \textbf{Subjetividad en la Inferencia Inicial:} Aunque las \textit{priors} se fundamentan en datos de \textit{HLTV.org}, la definición de estas distribuciones iniciales conlleva una decisión experta que introduce un componente de juicio humano en el sistema, lo cual es tanto una fortaleza como un sesgo potencial.
+\end{itemize}
 
 \section{ANÁLISIS EXPLORATORIO DE DATOS (EDA)}
 
