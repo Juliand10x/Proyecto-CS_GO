@@ -1,6 +1,5 @@
 \documentclass[twocolumn,10pt]{article}
 \usepackage[letterpaper,left=1.95cm,right=1.95cm,top=2.5cm,bottom=3.16cm]{geometry}
-\usepackage{natbib}
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{balance}
@@ -19,7 +18,7 @@
 ¿Qué hace que un equipo gane? Un análisis bayesiano sobre la victoria en CS:GO
 } \\[0.2cm]
 \fontsize{12}{12}\selectfont
-\textbf{Predicting the Unpredictable: Descubriendo el Determinante Mayor de la Victoria y Cuantificando la Incertidumbre en el Servidor}\\[0.2cm]}
+\textbf{Predicting the Unpredictable: Descubriendo las Variables más Influyentes en la Victoria y Cuantificando la Incertidumbre en el Servidor}\\[0.2cm]}
 }
 
 \author[1,*]{\fontsize{10pt}{10pt}\selectfont \textbf{Julián Duarte}}
@@ -40,10 +39,10 @@
     \begin{center}
         \textbf{RESUMEN}
     \end{center}
-    Este proyecto nace de la curiosidad por entender cómo se gana realmente en el mundo profesional del Counter-Strike. Mediante un enfoque bayesiano, se analizan miles de partidas de alto nivel para encontrar qué variables son las que de verdad inclinan la balanza. A diferencia de los modelos comunes que solo dan un porcentaje fijo, esta investigación se enfoca en medir la incertidumbre para saber qué tan confiable es cada predicción. Los resultados muestran que al usar información previa y considerar la diferencia entre mapas, se logra una visión más realista de las probabilidades de éxito \cite{csgodataset2020}.
+    Este proyecto nace de la curiosidad por entender cómo se gana realmente en el mundo profesional del Counter-Strike. Mediante un enfoque bayesiano, se analizan miles de partidas de alto nivel para encontrar qué variables son las que de verdad inclinan la balanza. A diferencia de los modelos comunes que solo dan un porcentaje fijo, esta investigación se enfoca en medir la incertidumbre para saber qué tan confiable es cada predicción. Los resultados muestran que al usar información previa y considerar la diferencia entre mapas, se logra una visión más realista de las probabilidades de éxito\cite{csgodataset2020}.
     \vspace{0.2cm}
 
-    \keywordsSpan{Esports, Modelado Bayesiano, CS:GO, Análisis de Datos, Incertidumbre, Calibración.}
+    \keywordsSpan{Esports, Modelado Bayesiano, CS:GO, Análisis de Datos, Incertidumbre, Validación Predictiva.}
     
     \vspace{0.6cm}
   \end{@twocolumnfalse}
@@ -54,34 +53,34 @@
 \section{PLANTEAMIENTO DEL PROBLEMA}
 Imagina que se está viendo la Gran Final de un Mundial de CS:GO. El marcador está 14-14 en el mapa de \textit{Inferno} y la tensión se siente en cada segundo del reloj. De repente, el jugador estrella del equipo hace una jugada increíble: tres bajas seguidas que dejan a todos gritando. Sus números suben y parece que tienen la ronda ganada. Pero, en un parpadeo, el otro equipo logra desactivar la bomba y se lleva el mapa. Aquí es donde surge la duda que motiva este proyecto: ¿por qué si un jugador brilla tanto, su equipo termina perdiendo? Muchas veces las variables que se observan en pantalla solo cuentan una parte de la historia y no explican realmente qué es lo que hace que un equipo gane en medio de tanto caos.
 
-El problema es que la mayoría de los modelos de predicción que existen nos dan un número fijo, como si ganar fuera algo seguro, y se olvidan de que en el Counter-Strike el azar y el contexto del mapa cambian todo. A esto se le conoce como \textbf{incertidumbre epistémica}, pero en palabras simples, es reconocer que hay muchas cosas que no podemos predecir con total seguridad. El reto de este trabajo no es solo adivinar quién va a ganar, sino entender qué tan confiable es esa predicción cuando el juego es tan volátil. Queremos descubrir cuál es la razón real que separa a los ganadores de los perdedores cuando la competencia está tan pareja.
+El problema es que la mayoría de los modelos de predicción que existen nos dan un número fijo, como si ganar fuera algo seguro, y se olvidan de que en el Counter-Strike el azar y el contexto del mapa cambian todo. A esto se le conoce como \textbf{incertidumbre epistémica}, pero en palabras simples, es reconocer que hay muchas cosas que no podemos predecir con total seguridad. El reto de este trabajo no es solo adivinar quién va a ganar, sino entender qué tan confiable es esa predicción cuando el juego es tan volátil. Queremos descubrir cuáles son las variables más influyentes que actúan como motores de la victoria cuando la competencia está tan pareja.
 
 \section{PREGUNTA DE INVESTIGACIÓN Y OBJETIVOS}
 
 Para resolver este misterio y no caer en el error de dar números fijos que ignoran el azar, se decidió usar un enfoque que permita ser ``honestos'' con lo que no se sabe. Es aquí donde el modelado bayesiano se vuelve el mejor aliado, llevando a la siguiente duda:
 
 \subsection{Pregunta de Investigación}
-¿Cuál es la variable que se posiciona como el determinante mayor de la victoria en CS:GO y de qué manera este enfoque bayesiano ayuda a cuantificar la incertidumbre de los pronósticos ante la volatilidad del escenario profesional?
+¿Cuáles son las variables que se posicionan como los determinantes más influyentes de la victoria en CS:GO y de qué manera este enfoque bayesiano ayuda a cuantificar la incertidumbre de los pronósticos ante la volatilidad del escenario profesional?
 
 \subsection{Objetivos}
 \textbf{Objetivo General:}
-Identificar qué variable actúa como el determinante mayor de la victoria y desarrollar un modelo bayesiano que permita estimar las probabilidades de éxito, midiendo siempre la incertidumbre de las predicciones en el circuito profesional de CS:GO.
+Identificar cuáles son las variables que actúan como los determinantes más influyentes de la victoria y desarrollar un modelo bayesiano que permita estimar las probabilidades de éxito, midiendo siempre la incertidumbre de las predicciones en el circuito profesional de CS:GO.
 
 \textbf{Objetivos Específicos:}
 \begin{itemize}
     \item Explorar miles de partidas profesionales para encontrar las variables que realmente separan a los ganadores de los perdedores.
     \item Integrar lo que ya se conoce sobre el desempeño de los equipos (\textit{priors}) para que el modelo sea más confiable frente a resultados inesperados.
     \item Implementar un sistema que no solo nos arroje un ganador, sino que nos permita visualizar qué tan seguros estamos de ese pronóstico.
-    \item Evaluar qué tan bien están calibradas las predicciones usando herramientas como el \textit{Brier Score}.
+    \item Evaluar el desempeño del modelo mediante Chequeos Predictivos Posteriores (PPC) y el análisis de los intervalos HDI.
 \end{itemize}
 
 \section{JUSTIFICACIÓN}
-Este proyecto se realiza porque se considera que en los Esports faltan análisis que sean honestos con lo impredecible que es el juego. Muchas veces se observa solo el resultado final, pero no se entiende qué tan arriesgado fue llegar ahí. El modelado bayesiano da esa herramienta para unir los datos con la realidad del servidor, permitiendo que analistas y aficionados entiendan no solo quién tiene más chance de ganar, sino cuánta duda hay detrás de ese número \cite{sainz2024bayesian}.
+Este proyecto se realiza porque se considera que en los Esports faltan análisis que sean honestos con lo impredecible que es el juego. Muchas veces se observa solo el resultado final, pero no se entiende qué tan arriesgado fue llegar ahí. El modelado bayesiano da esa herramienta para unir los datos con la realidad del servidor, permitiendo que analistas y aficionados entiendan no solo quién tiene más chance de ganar, sino cuánta duda hay detrás de ese número\cite{sainz2024bayesian}.
 
 \section{ESTADO DEL ARTE}
-Para hacer este proyecto, investigamos lo que otros ya han hecho y nos dimos cuenta de que el análisis de datos en los Esports ha avanzado un montón. Por ejemplo, autores como Broms y Nordansjö \cite{csgodataset2020} o Makarov \cite{makarov2017predicting} han usado modelos de aprendizaje automático para intentar adivinar quién gana las partidas. También vimos que existen sistemas muy conocidos como el \textit{TrueSkill} de Microsoft \cite{herbrich2006trueskill}, que usa ideas bayesianas para ponerles puntaje a los jugadores, y otros estudios que miran cómo cambian las probabilidades de ganar mientras se juega la partida \cite{hodge2019win}.
+Para hacer este proyecto, investigamos lo que otros ya han hecho y nos dimos cuenta de que el análisis de datos en los Esports ha avanzado un montón. Por ejemplo, autores como Broms y Nordansj\"{o}\cite{csgodataset2020} o Makarov\cite{makarov2017predicting} han usado modelos de aprendizaje automático para intentar adivinar quién gana las partidas. También vimos que existen sistemas muy conocidos como el \textit{TrueSkill} de Microsoft\cite{herbrich2006trueskill}, que usa ideas bayesianas para ponerles puntaje a los jugadores, y otros estudios que miran cómo cambian las probabilidades de ganar mientras se juega la partida\cite{hodge2019win}.
 
-A pesar de todo esto, sentimos que a muchos de estos modelos les falta algo: la capacidad de decirte qué tan seguros están de su predicción. Como menciona Goldin \cite{goldin2021bayesian}, el CS:GO cambia constantemente y no se puede tratar cada partida como algo aislado. Por eso, nosotros decidimos ir un paso más allá. Usando las bases de expertos en estadística como Gelman \cite{gelman2013bayesian}, diseñamos un modelo que no solo busca al ganador, sino que mide la incertidumbre. Así, nuestro trabajo no solo intenta predecir, sino que es lo suficientemente ``honesto'' para reconocer cuándo un resultado es demasiado difícil de asegurar debido a lo volátil que es el juego.
+A pesar de todo esto, sentimos que a muchos de estos modelos les falta algo: la capacidad de decirte qué tan seguros están de su predicción. Como menciona Goldin\cite{goldin2021bayesian}, el CS:GO cambia constantemente y no se puede tratar cada partida como algo aislado. Por eso, nosotros decidimos ir un paso más allá. Usando las bases de expertos en estadística como Gelman\cite{gelman2013bayesian}, diseñamos un modelo que no solo busca al ganador, sino que mide la incertidumbre. Así, nuestro trabajo no solo intenta predecir, sino que es lo suficientemente ``honesto'' para reconocer cuándo un resultado es demasiado difícil de asegurar debido a lo volátil que es el juego.
 
 \section{CONTEXTO DEL PROBLEMA}
 Hoy en día, el Counter-Strike es una industria gigante que mueve millones de dólares y atrae a más de un millón y medio de personas en las finales. Todo este crecimiento ha hecho que se generen muchísimos datos, y páginas como \textit{HLTV.org} guardan los datos de miles de partidas cada año. 
@@ -109,10 +108,10 @@ Para que nuestro estudio tenga bases sólidas, usamos una base de datos con más
 \end{table}
 
 \section{ANÁLISIS EXPLORATORIO DE DATOS (EDA)}
-Se analizan a fondo los datos de las partidas para entender qué es lo que hace que un equipo tenga éxito.
+Se analizan a fondo los datos de las partidas para identificar los factores y variables que actúan como los verdaderos motores del éxito competitivo, justificando la estructura del modelo propuesto.
 
 \subsection{Análisis de Paridad y Distribución}
-En la Figura \ref{fig:DistFig} se puede ver que la mayoría de los mejores equipos tienen niveles de \textit{Rating} muy parecidos. Como están tan parejos, es muy difícil saber quién va a ganar, y por eso necesitamos un modelo que nos hable de la incertidumbre.
+En la Figura \ref{fig:DistFig} se observa una superposición extrema en las distribuciones de \textit{Rating} entre los equipos de élite. Esta paridad técnica confirma que el nivel competitivo es tan cercano que un simple ranking no es suficiente para predecir un ganador. Es precisamente este hallazgo el que justifica el uso de un enfoque bayesiano: ante la imposibilidad de discriminar a los equipos por talento puro, se vuelve vital cuantificar la \textbf{incertidumbre epistémica} para entender los márgenes de victoria.
 
 \begin{figure}[h]
     \centering
@@ -122,7 +121,7 @@ En la Figura \ref{fig:DistFig} se puede ver que la mayoría de los mejores equip
 \end{figure}
 
 \subsection{Relación entre Desempeño y Éxito}
-La Figura \ref{fig:RatingWin} nos muestra que incluso una pequeña mejora en el desempeño ayuda mucho a ganar, lo que confirma que el \textit{Rating} es una variable muy importante para empezar a analizar.
+La Figura \ref{fig:RatingWin} valida que las métricas de rendimiento individual se traducen efectivamente en éxitos colectivos. Se observa una correlación positiva donde incluso mejoras marginales en el desempeño promedio del equipo aumentan significativamente la probabilidad de victoria. Este análisis posiciona al \textit{Rating} como la variable base para iniciar la discriminación entre ganadores y perdedores.
 
 \begin{figure}[h]
     \centering
@@ -131,8 +130,10 @@ La Figura \ref{fig:RatingWin} nos muestra que incluso una pequeña mejora en el 
     \label{fig:RatingWin}
 \end{figure}
 
-\subsection{La Variable Diferencial: Impacto y Mapas}
-El gráfico de violín (Figura \ref{fig:ImpactViolin}) nos muestra que los equipos ganadores suelen tener un impacto mucho más constante. Además, el balance de los mapas (Figura \ref{fig:MapBalance}) nos enseña que no todos los mapas se juegan igual, algo que nuestro modelo debe tener en cuenta.
+\subsection{Motores de la Victoria: Impacto y Contexto Táctico}
+Para entender por qué equipos con estadísticas similares obtienen resultados distintos, se analizó el \textbf{Impacto Táctico}. En la Figura \ref{fig:ImpactViolin} se aprecia que los ganadores poseen un impacto mucho más constante, lo que sugiere que el éxito no solo depende de la cantidad de bajas, sino de su relevancia en momentos críticos (como las \textit{opening kills}). 
+
+Además, el balance de los mapas (Figura \ref{fig:MapBalance}) revela asimetrías tácticas significativas entre el bando defensivo (CT) y el ofensivo (T). Esta variabilidad contextual es la que motiva la implementación de una \textbf{estructura jerárquica} en el modelo, permitiendo que las predicciones se ajusten según las características únicas de cada escenario de juego.
 
 \begin{figure}[h]
     \centering
@@ -149,7 +150,7 @@ El gráfico de violín (Figura \ref{fig:ImpactViolin}) nos muestra que los equip
 \end{figure}
 
 \subsection{Matriz de Correlación}
-Para terminar con los datos, la matriz de correlación (Figura \ref{fig:CorrFig}) nos dice que lo que más influye es la combinación entre el impacto táctico y el daño que hace el equipo (ADR), más que simplemente estar arriba en un ranking.
+Finalmente, la matriz de correlación (Figura \ref{fig:CorrFig}) identifica la sinergia fundamental entre el Impacto Táctico y el Daño Promedio (ADR). Estos hallazgos confirman que los verdaderos motores de la victoria son aquellas variables que capturan la capacidad de influir en el servidor en momentos de alta presión, formando el núcleo predictivo del estudio.
 
 \begin{figure}[h]
     \centering
@@ -159,10 +160,33 @@ Para terminar con los datos, la matriz de correlación (Figura \ref{fig:CorrFig}
 \end{figure}
 
 \section{DISEÑO METODOLÓGICO}
-Para resolver nuestra duda, planteamos el problema como una clasificación donde usamos una \textbf{Regresión Logística Bayesiana Jerárquica}. Básicamente, queremos que el modelo aprenda a elegir entre ganar o perder basándose en los datos.
+Para resolver nuestra duda, planteamos el problema mediante una \textbf{Regresión Logística Bayesiana Jerárquica}. Este enfoque permite no solo predecir el resultado, sino entender la estructura de incertidumbre detrás de cada variable competitiva.
 
-\subsection{Especificación de Priors y Visualización}
-Usamos las \textit{priors} para darle al modelo una idea inicial de cómo rinden los equipos. En la Figura \ref{fig:Priors} puedes ver cómo estas ideas sirven como punto de partida antes de que el modelo empeice a analizar lo que pasa realmente en las partidas.
+\subsection{Definición de la Función de Verosimilitud (Likelihood)}
+Dado que el resultado de un encuentro en el servidor es una variable binaria (victoria o derrota), se define el \textit{likelihood} mediante una distribución de \textbf{Bernoulli}:
+
+\begin{equation}
+    y_i \sim \text{Bernoulli}(p_i)
+\end{equation}
+
+Donde $p_i$ representa la probabilidad de éxito de un equipo en la partida $i$. Para relacionar esta probabilidad con el desempeño técnico, utilizamos la función de enlace \textit{logit}, que transforma el espacio lineal de los predictores al rango $[0, 1]$:
+
+\begin{equation}
+    \text{logit}(p_i) = \alpha_{map[i]} + \sum_{k=1}^{n} \beta_k X_{ki}
+\end{equation}
+
+Aquí, $X_{ki}$ representa variables como el \textit{Rating 2.0}, el \textit{Impacto} y el \textit{ADR}, mientras que $\alpha_{map[i]}$ actúa como un intercepto aleatorio que captura la variabilidad intrínseca de cada escenario de juego.
+
+\subsection{Especificación de Priors y Argumentación}
+En coherencia con el enfoque pedagógico de "honestidad estadística", se han seleccionado \textit{priors} que permiten al modelo aprender directamente de la evidencia de las partidas profesionales sin imponer sesgos restrictivos.
+
+\begin{enumerate}
+    \item \textbf{Coeficientes de Desempeño ($\beta_k \sim \text{Normal}(0, 5^2)$):} Se utilizan distribuciones normales débilmente informativas centradas en cero. Esto significa que el modelo comienza asumiendo que no sabe si variables como el \textit{Impacto} son positivas o negativas para la victoria, dejando que los datos dictaminen su verdadera influencia y magnitud.
+    \item \textbf{Intercepto Jerárquico ($\alpha_{j} \sim \text{Normal}(\mu_\alpha, \sigma_\alpha^2)$):} Se reconoce que cada mapa de CS:GO posee una asimetría táctica única. Por ello, en lugar de un intercepto fijo, permitimos que cada mapa tenga su propia base probabilística, vinculada a una distribución global.
+    \item \textbf{Hiperparámetros ($\sigma_\alpha \sim \text{HalfNormal}(2)$):} Para la variabilidad entre mapas, se utiliza una distribución \textit{Half-Normal}. Esto asegura que la desviación estándar sea siempre positiva y evita que el modelo sobreestime las diferencias extremas entre mapas con pocos datos.
+\end{enumerate}
+
+En la Figura \ref{fig:Priors} se puede apreciar cómo estas ideas sirven como el punto de partida probabilístico antes de que el proceso de simulación MCMC comience a integrar la evidencia del servidor.
 
 \begin{figure}[h]
     \centering
@@ -172,10 +196,10 @@ Usamos las \textit{priors} para darle al modelo una idea inicial de cómo rinden
 \end{figure}
 
 \subsection{Estrategia de Evaluación}
-Para saber si nuestro modelo es bueno, usamos el \textbf{Brier Score} para ver qué tan bien calibra las probabilidades y el \textbf{HDI} para entender qué tan seguros estamos de lo que decimos. Un buen modelo es aquel que sabe cuándo hay demasiada incertidumbre como para dar un ganador seguro.
+Para saber si el modelo es confiable, se utilizan los \textbf{Chequeos Predictivos Posteriores (PPC)} para verificar que las simulaciones logren capturar la realidad del servidor, junto con el \textbf{HDI} para cuantificar la incertidumbre de las estimaciones. Un buen modelo es aquel que reconoce cuándo existe demasiada volatilidad como para asegurar un ganador.
 
 \section{LIMITACIONES Y CONCLUSIONES}
-Aunque se ha procedido con rigor, el modelo tiene sus límites, como no poder medir el estado de ánimo de los jugadores. Aún así, se llega a la conclusión de que lo que más influye para ganar es el \textbf{Impacto Táctico}. Además, se considera que el enfoque bayesiano es la mejor forma de dar predicciones ``honestas'' en un juego tan volátil e impredecible como el CS:GO.
+Aunque se ha procedido con rigor, el modelo tiene sus límites, como no poder medir el estado de ánimo de los jugadores. Aún así, se llega a la conclusión de que la victoria no depende de un solo factor, sino de una combinación de variables donde el \textbf{Impacto Táctico} y el \textbf{Rating 2.0} se posicionan como las más influyentes. Además, se considera que el enfoque bayesiano es la mejor forma de dar predicciones ``honestas'' en un juego tan volátil e impredecible como el CS:GO.
 
 \bibliographystyle{apalike}
 \bibliography{bibliografia}
