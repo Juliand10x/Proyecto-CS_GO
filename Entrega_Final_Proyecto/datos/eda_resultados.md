@@ -17,11 +17,11 @@ Para validar que las métricas de desempeño individual capturadas realmente se 
 
 **Resultados:**
 * Existe una correlación positiva clara: incluso mejoras marginales en el Rating promedio del equipo aumentan significativamente la probabilidad de ganar el mapa.
-* El Rating es la variable "ancla" que permite iniciar la discriminación entre ganadores y perdedores.
+* El Rating es una de las variables clave que permite iniciar la discriminación entre ganadores y perdedores.
 
-## 3. Identificación de la Variable Diferencial: El Impacto
+## 3. Identificación de las Variables más Influyentes: El Impacto
 **¿Por qué se hizo?**
-Buscábamos una variable que explicara por qué equipos con Rating similar obtienen resultados distintos.
+Buscábamos las variables que explicaran por qué equipos con Rating similar obtienen resultados distintos.
 
 **Resultados:**
 * El **Impacto Táctico** mostró ser más consistente en los equipos ganadores.
