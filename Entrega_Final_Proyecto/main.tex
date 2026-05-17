@@ -15,10 +15,8 @@
 {\title{\fontsize{16}{16}\selectfont
 \vspace*{-0.7cm}
 \textbf{
-¿Qué hace que un equipo gane? Un análisis bayesiano sobre la victoria en CS:GO
-} \\[0.2cm]
-\fontsize{12}{12}\selectfont
-\textbf{Predicting the Unpredictable: Descubriendo las Variables más Influyentes en la Victoria y Cuantificando la Incertidumbre en el Servidor}\\[0.2cm]}
+Determinantes del éxito competitivo en Counter-Strike: Global Offensive: Un análisis mediante regresión logística bayesiana jerárquica
+} \\[0.2cm]}
 }
 
 \author[1,*]{\fontsize{10pt}{10pt}\selectfont \textbf{Julián Duarte}}
@@ -50,42 +48,50 @@
 
 \thispagestyle{fancyplain}
 
-\section{PLANTEAMIENTO DEL PROBLEMA}
-Imagina que se está viendo la Gran Final de un Mundial de CS:GO. El marcador está 14-14 en el mapa de \textit{Inferno} y la tensión se siente en cada segundo del reloj. De repente, el jugador estrella del equipo hace una jugada increíble: tres bajas seguidas que dejan a todos gritando. Sus números suben y parece que tienen la ronda ganada. Pero, en un parpadeo, el otro equipo logra desactivar la bomba y se lleva el mapa. Aquí es donde surge la duda que motiva este proyecto: ¿por qué si un jugador brilla tanto, su equipo termina perdiendo? Muchas veces las variables que se observan en pantalla solo cuentan una parte de la historia y no explican realmente qué es lo que hace que un equipo gane en medio de tanto caos.
+\section{INTRODUCCIÓN}
 
-El problema es que la mayoría de los modelos de predicción que existen nos dan un número fijo, como si ganar fuera algo seguro, y se olvidan de que en el Counter-Strike el azar y el contexto del mapa cambian todo. A esto se le conoce como \textbf{incertidumbre epistémica}, pero en palabras simples, es reconocer que hay muchas cosas que no podemos predecir con total seguridad. El reto de este trabajo no es solo adivinar quién va a ganar, sino entender qué tan confiable es esa predicción cuando el juego es tan volátil. Queremos descubrir cuáles son las variables más influyentes que actúan como motores de la victoria cuando la competencia está tan pareja.
+Imagina que se está viendo la Gran Final de un Mundial de CS:GO. El marcador está 14-14 en el mapa de \textit{Inferno}. De repente, el jugador estrella hace una jugada increíble: tres bajas seguidas que parecen asegurar la ronda. Sin embargo, en un parpadeo, el otro equipo desactiva la bomba y se lleva el mapa. Aquí surge la duda que motiva este proyecto: ¿por qué si un jugador brilla tanto, su equipo termina perdiendo? ¿Acaso ganar depende solo de tener a los mejores jugadores, o hay un trabajo en equipo invisible que define todo? ¿Qué tanto importa el lado del mapa en el que se juega, o quién consigue la primera baja bajo tanta presión? Estas interrogantes demuestran que, muchas veces, las estadísticas que vemos en pantalla solo nos cuentan una pequeña parte de la historia.
 
-\section{PREGUNTA DE INVESTIGACIÓN Y OBJETIVOS}
+\subsection{Contexto y Relevancia del Problema}
+Hoy en día, el Counter-Strike es una industria gigante que mueve millones de dólares, y plataformas como \textit{HLTV.org} guardan los datos de miles de partidas cada año. En este nivel competitivo, los equipos son tan parecidos que la diferencia entre ganar y perder es mínima. Ante un juego tan cambiante, los modelos de predicción tradicionales fallan porque entregan un porcentaje fijo, como si ganar fuera algo seguro. Olvidan que el azar y la \textbf{incertidumbre epistémica} —es decir, aceptar que hay elementos que no podemos predecir con total seguridad— alteran por completo las probabilidades.
 
-Para resolver este misterio y no caer en el error de dar números fijos que ignoran el azar, se decidió usar un enfoque que permita ser ``honestos'' con lo que no se sabe. Es aquí donde el modelado bayesiano se vuelve el mejor aliado, llevando a la siguiente duda:
+Para abordar este problema, la estadística bayesiana se presenta como la solución ideal. A diferencia de los métodos comunes, un enfoque bayesiano permite calcular y visualizar explícitamente qué tan seguros estamos de una predicción. Además, dado que cada mapa en CS:GO tiene características tácticas únicas (algunos favorecen más a la defensa y otros al ataque), es necesario utilizar un modelo \textbf{jerárquico}. Esto significa que el modelo no asume que todas las partidas son iguales, sino que ajusta sus cálculos dependiendo del contexto del mapa en el que se juega.
 
-\subsection{Pregunta de Investigación}
-¿Cuáles son las variables que se posicionan como los determinantes más influyentes de la victoria en CS:GO y de qué manera este enfoque bayesiano ayuda a cuantificar la incertidumbre de los pronósticos ante la volatilidad del escenario profesional?
+Es aquí donde este estudio resulta realmente útil. Superar las estadísticas básicas y los pronósticos engañosos beneficia a diferentes actores del mundo de los Esports. Para los equipos y entrenadores, ayuda a descubrir nuevos talentos y a plantear mejores tácticas al entender qué es lo que realmente hace ganar rondas. Por otro lado, ofrece a las plataformas de análisis y sitios de pronósticos una forma más honesta de medir el riesgo. Por lo tanto, la meta de este proyecto no es solo intentar adivinar quién será el ganador, sino crear herramientas que midan cuánta duda hay detrás de cada predicción, logrando así un análisis mucho más realista y confiable.
 
-\subsection{Objetivos}
-\textbf{Objetivo General:}
-Identificar cuáles son las variables que actúan como los determinantes más influyentes de la victoria y desarrollar un modelo bayesiano que permita estimar las probabilidades de éxito, midiendo siempre la incertidumbre de las predicciones en el circuito profesional de CS:GO.
+\subsection{Pregunta de Investigación y Objetivos}
+Para abordar este fenómeno con "honestidad estadística", se plantea la siguiente pregunta de investigación: \textit{¿Cuáles son las variables que realmente deciden al ganador en CS:GO, y de qué manera es posible asegurar la fiabilidad de un pronóstico en un juego donde todo cambia en un segundo?}
+
+\textbf{Objetivo General:} Identificar las variables críticas de éxito y desarrollar un modelo bayesiano jerárquico que permita estimar las probabilidades de victoria, cuantificando la incertidumbre de las predicciones en el circuito profesional.
 
 \textbf{Objetivos Específicos:}
 \begin{itemize}
-    \item Explorar miles de partidas profesionales para encontrar las variables que realmente separan a los ganadores de los perdedores.
-    \item Integrar lo que ya se conoce sobre el desempeño de los equipos (\textit{priors}) para que el modelo sea más confiable frente a resultados inesperados.
-    \item Implementar un sistema que no solo nos arroje un ganador, sino que nos permita visualizar qué tan seguros estamos de ese pronóstico.
-    \item Evaluar el desempeño del modelo mediante Chequeos Predictivos Posteriores (PPC) y el análisis de los intervalos HDI.
+    \item Explorar partidas profesionales para identificar las variables que separan con mayor precisión a los ganadores de los perdedores.
+    \item Integrar el conocimiento previo sobre el desempeño técnico (\textit{priors}) para que el modelo sea más confiable frente a resultados inesperados.
+    \item Incorporar el contexto de los distintos mapas para capturar la asimetría táctica y ajustar las probabilidades a las condiciones específicas de cada partida.
+    \item Implementar un sistema que no solo arroje un ganador, sino que permita visualizar el grado de seguridad de cada pronóstico.
+    \item Evaluar el desempeño del modelo mediante Chequeos Predictivos Posteriores (PPC) y el análisis de los intervalos de densidad (HDI).
 \end{itemize}
 
-\section{JUSTIFICACIÓN}
-Este proyecto se realiza porque se considera que en los Esports faltan análisis que sean honestos con lo impredecible que es el juego. Muchas veces se observa solo el resultado final, pero no se entiende qué tan arriesgado fue llegar ahí. El modelado bayesiano da esa herramienta para unir los datos con la realidad del servidor, permitiendo que analistas y aficionados entiendan no solo quién tiene más chance de ganar, sino cuánta duda hay detrás de ese número\cite{sainz2024bayesian}.
+\section{REVISIÓN DE LITERATURA}
 
-\section{ESTADO DEL ARTE}
-Para hacer este proyecto, investigamos lo que otros ya han hecho y nos dimos cuenta de que el análisis de datos en los Esports ha avanzado un montón. Por ejemplo, autores como Broms y Nordansj\"{o}\cite{csgodataset2020} o Makarov\cite{makarov2017predicting} han usado modelos de aprendizaje automático para intentar adivinar quién gana las partidas. También vimos que existen sistemas muy conocidos como el \textit{TrueSkill} de Microsoft\cite{herbrich2006trueskill}, que usa ideas bayesianas para ponerles puntaje a los jugadores, y otros estudios que miran cómo cambian las probabilidades de ganar mientras se juega la partida\cite{hodge2019win}.
+El análisis predictivo en los Esports, y específicamente en Counter-Strike, ha crecido a la par de la disponibilidad de datos masivos. Al revisar las investigaciones previas, se identifican dos grandes enfoques que, si bien han aportado conocimientos clave, también revelan limitaciones que justifican el presente estudio: el uso de modelos predictivos tradicionales y la necesidad de gestionar la incertidumbre.
 
-A pesar de todo esto, sentimos que a muchos de estos modelos les falta algo: la capacidad de decirte qué tan seguros están de su predicción. Como menciona Goldin\cite{goldin2021bayesian}, el CS:GO cambia constantemente y no se puede tratar cada partida como algo aislado. Por eso, nosotros decidimos ir un paso más allá. Usando las bases de expertos en estadística como Gelman\cite{gelman2013bayesian}, diseñamos un modelo que no solo busca al ganador, sino que mide la incertidumbre. Así, nuestro trabajo no solo intenta predecir, sino que es lo suficientemente ``honesto'' para reconocer cuándo un resultado es demasiado difícil de asegurar debido a lo volátil que es el juego.
+En primer lugar, gran parte de la literatura se ha centrado en identificar qué variables determinan la victoria utilizando algoritmos de \textit{Machine Learning}. Autores como Broms y Nordansj\"{o} \cite{csgodataset2020}, Makarov et al. \cite{makarov2017predicting} y Peng \cite{peng2024application} han demostrado que factores como la economía del equipo, el daño infligido y las bajas iniciales son excelentes predictores. Sin embargo, una limitación recurrente en estos estudios es su naturaleza determinista. Modelos como Random Forest o Redes Neuronales suelen arrojar una probabilidad fija, asumiendo una relación rígida entre el desempeño histórico y el resultado final, lo cual ignora la alta volatilidad del juego competitivo.
 
-\section{CONTEXTO DEL PROBLEMA}
-Hoy en día, el Counter-Strike es una industria gigante que mueve millones de dólares y atrae a más de un millón y medio de personas en las finales. Todo este crecimiento ha hecho que se generen muchísimos datos, y páginas como \textit{HLTV.org} guardan los datos de miles de partidas cada año. 
+En segundo lugar, para abordar esta volatilidad, algunos investigadores han analizado cómo cambian las probabilidades en tiempo real. Estudios como los de Hodge et al. \cite{hodge2019win} y Xenopoulos et al. \cite{xenopoulos2022csgo} destacan que la probabilidad de ganar en CS:GO fluctúa drásticamente ronda tras ronda. Estos hallazgos evidencian una tensión importante: si el juego es tan impredecible, los modelos estáticos no son suficientes; se requiere un enfoque que pueda medir explícitamente esa incertidumbre.
 
-Ahora mismo, el nivel de los equipos es tan parecido que la diferencia entre ganar y perder es mínima. Cosas como qué tan bien juega un equipo en un mapa específico o cómo rinden bajo presión son claves. Por eso, necesitamos herramientas que entiendan que una ventaja puede desaparecer en un segundo y que el éxito depende de qué tan bien se adapte un equipo a lo que pasa en la partida.
+Es en este punto donde la estadística bayesiana cobra relevancia. El sistema \textit{TrueSkill} desarrollado por Microsoft \cite{herbrich2006trueskill} fue pionero al utilizar principios bayesianos no solo para calificar a los jugadores, sino para medir la incertidumbre sobre dicha calificación. Más recientemente, investigadores como Santos-Fernandez et al. \cite{sainz2024bayesian} y Goldin \cite{goldin2021bayesian} han argumentado que el enfoque bayesiano es ideal para los deportes electrónicos porque permite actualizar las creencias y cuantificar la duda estadística de forma rigurosa.
+
+A pesar de estos avances, existe un vacío en la literatura: mientras se usa \textit{Machine Learning} para predecir con variables de juego y modelos bayesianos para calificar talento, hay escasos intentos de fusionar ambos mundos mediante un enfoque \textbf{jerárquico}. Tal como plantean textos fundamentales como el de Gelman et al. \cite{gelman2013bayesian}, las estructuras jerárquicas permiten agrupar datos según su contexto. En CS:GO, el contexto es el mapa, ya que cada uno posee asimetrías tácticas que alteran las reglas del juego.
+
+Por lo tanto, la literatura analizada justifica directamente nuestra pregunta de investigación. Este proyecto busca llenar el vacío existente al tomar las variables tácticas más importantes (identificadas por la literatura clásica) y procesarlas a través de un modelo bayesiano jerárquico que, en lugar de entregar una certeza engañosa, cuantifique la incertidumbre epistémica y ajuste sus predicciones a la asimetría táctica de cada mapa.
+
+\subsection{Justificación y Contribución}
+Este trabajo se justifica por la necesidad de análisis en los Esports que integren la naturaleza impredecible del juego. La estadística bayesiana permite unir los datos con la realidad del servidor, ofreciendo una herramienta para que analistas y aficionados comprendan la magnitud de la incertidumbre detrás de cada porcentaje de éxito, aportando una visión más realista y "honesta" del desempeño competitivo.
+
+\subsection{Estructura del Artículo}
+El documento se organiza de la siguiente manera: la Sección 2 describe la fuente de datos y el análisis exploratorio (EDA); la Sección 3 expone el diseño metodológico bayesiano; la Sección 4 presenta los resultados y su interpretación; y la Sección 5 cierra con las conclusiones y limitaciones.
 
 \section{FUENTE DE DATOS Y VARIABLES}
 Para que nuestro estudio tenga bases sólidas, usamos una base de datos con más de 3,700 partidas profesionales. Aquí te mostramos las variables clave que usamos como las piezas principales para armar nuestro modelo:
