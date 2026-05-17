@@ -95,34 +95,31 @@ El documento se organiza de la siguiente manera: la Sección 2 describe la fuent
 
 \section{DATOS Y OPERACIONALIZACIÓN}
 
-El presente estudio se fundamenta en un diseño observacional retrospectivo a partir de una base de datos secundaria integrada por registros de la plataforma especializada \textit{HLTV.org} \cite{hltv2024}, recopilados y validados metodológicamente por Broms y Nordansj\"{o} \cite{csgodataset2020}. La unidad de análisis se define formalmente como la confrontación competitiva individual disputada a nivel de mapa único.
+El presente estudio utiliza datos históricos reales de partidas profesionales de CS:GO recopiladas por la plataforma \textit{HLTV.org} \cite{hltv2024} y organizadas para fines académicos por Broms y Nordansj\"{o} \cite{csgodataset2020}. En este análisis, cada observación representa lo ocurrido en un mapa específico de una partida competitiva.
 
-\subsection{Integración de Datos y Control de Sesgo por Pérdida}
+\subsection{El Reto de Unir los Datos: Una Solución Sencilla}
 
-La fase de acoplamiento de las bases de datos originales presentó un desafío crítico de consistencia lexicográfica: los registros de desempeño individual de los jugadores utilizaban identificadores de equipos en mayúsculas sostenidas (v.g., \textit{'ASTRALIS'}), mientras que el registro de resultados históricos empleaba una capitalización estándar (v.g., \textit{'Astralis'}). Un procedimiento de integración convencional rígido (\textit{case-sensitive}) arrojaba una pérdida masiva de información, reduciendo la muestra útil a una subpoblación sesgada de apenas 218 observaciones debido a la falta de coincidencia alfanumérica exacta. 
+Al intentar juntar la información del desempeño de los jugadores con los resultados de las partidas, surgió un problema muy común pero molesto: la escritura de los nombres de los equipos no coincidía. Mientras que en una parte de los datos aparecían en mayúsculas (por ejemplo, \textit{'ASTRALIS'}), en la otra estaban escritos de forma mixta (\textit{'Astralis'}). Un cruce de datos estricto que buscara coincidencia exacta de letras arrojaba una muestra muy pequeña de apenas 218 registros, lo cual impedía hacer un análisis serio. 
 
-Para resolver esta limitación metodológica sin introducir sesgos de selección, se implementó una rutina de normalización sintáctica consistente en la estandarización de las cadenas a mayúsculas sostenidas y la remoción de espacios marginales redundantes. Asimismo, se estableció un criterio de acoplamiento temporal basado en una ventana de adyacencia de $\pm 3$ días respecto a la fecha del encuentro para garantizar la sincronización de las métricas. Este tratamiento de datos expandió el soporte empírico 26 veces, consolidando un corpus definitivo de \textbf{5,745 observaciones de mapas} correspondientes a \textbf{3,341 partidas profesionales únicas} disputadas entre 2016 y 2020. Esta robusta escala muestral asegura la representatividad y estabilidad de las estimaciones posteriores.
+Para resolver este inconveniente sin perder información valiosa, se aplicó una corrección simple: convertir todos los nombres de los equipos a mayúsculas y borrar los espacios vacíos sobrantes antes de unirlos, permitiendo un margen de tiempo de hasta 3 días entre la fecha de las estadísticas y la de la partida. Gracias a este ajuste sencillo, la muestra creció 26 veces, logrando un total definitivo de \textbf{5,745 mapas jugados} en \textbf{3,341 partidas profesionales únicas} disputadas entre 2016 y 2020. Contar con esta base de datos tan grande asegura que los resultados del modelo sean sumamente estables y representativos del juego real.
 
-\subsection{Operacionalización y Estructura Variable}
+\subsection{¿Qué Mide el Modelo y Cómo lo Mide?}
 
-La variable dependiente del modelo ($Y_i$) se operacionalizó de forma dicotómica, donde $Y_i = 1$ denota la victoria del equipo designado de referencia (Equipo 1) en el mapa $i$, e $Y_i = 0$ en caso de derrota:
-\begin{equation}
-    Y_i \sim \text{Bernoulli}(p_i)
-\end{equation}
+Para predecir el resultado, la variable clave a definir es la victoria o derrota. Esto se maneja de forma sencilla: si el equipo catalogado como "Equipo 1" gana la partida en el mapa correspondiente, se anota un 1; de lo contrario, se anota un 0. 
 
-Las variables independientes se construyeron como diferenciales métricos continuos entre ambos contendientes ($X_{\text{diff}} = \bar{X}_{\text{Equipo 1}} - \bar{X}_{\text{Equipo 2}}$), calculados a partir de los promedios móviles del rendimiento individual de los cinco integrantes de cada escuadra en sus encuentros inmediatamente anteriores. Esta especificación permite capturar la paridad relativa directamente en el servidor. Los predictores incorporados son:
+Para saber qué influye en este resultado, el modelo compara directamente el desempeño reciente de ambos equipos. Para cada métrica, se calcula el promedio del desempeño de los cinco jugadores de un equipo y se le resta el promedio del rival (Equipo 1 - Equipo 2). Así, obtenemos una "ventaja o desventaja" en las siguientes cuatro variables que cualquier aficionado al juego reconoce de inmediato:
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Diferencial de Rating 2.0 ($\text{diff\_rating}$):} Métrica geométrica global ponderada que sintetiza la efectividad general del jugador en el servidor.
-    \item \textbf{Diferencial de Impacto Táctico ($\text{diff\_impact}$):} Índice que mide la capacidad de decidir rondas críticas mediante bajas iniciales (\textit{entry kills}), bajas múltiples o victorias en situaciones de desventaja numérica (\textit{clutches}).
-    \item \textbf{Diferencial de KAST ($\text{diff\_kast}$):} Porcentaje agregado de rondas en las que el jugador contribuyó activamente mediante una baja (\textit{Kill}), asistencia (\textit{Assist}), supervivencia (\textit{Survival}) o muerte intercambiada (\textit{Traded}).
-    \item \textbf{Diferencial de Daño Promedio por Ronda ($\text{diff\_dmr}$):} Expresión del daño bruto infligido al oponente por ronda (ADR), constituyendo una medida del desgaste táctico ejercido.
+    \item \textbf{Rating 2.0 (Diferencial):} Es la métrica reina del juego. Resume qué tan bien juega alguien en general, combinando bajas, muertes y otras estadísticas clave.
+    \item \textbf{Impacto Táctico (Diferencial):} Mide la capacidad de un equipo para lograr jugadas espectaculares o críticas bajo presión, como conseguir la primera baja de la ronda, hacer múltiples bajas seguidas o ganar rondas estando en inferioridad numérica.
+    \item \textbf{KAST (Diferencial):} Mide la constancia y el trabajo en equipo. Es el porcentaje de rondas en las que un jugador ayuda activamente a su equipo, ya sea eliminando a alguien, asistiendo a un compañero, sobreviviendo o siendo "intercambiado" inmediatamente tras morir.
+    \item \textbf{Daño por Ronda o ADR (Diferencial):} Mide la cantidad de daño directo que los jugadores propinan a los rivales en cada ronda. Un ADR alto desgasta la salud del oponente y facilita ganar los enfrentamientos.
 \end{itemize}
 
-\subsection{Multicolinealidad y Limitaciones de Observabilidad}
+\subsection{Evitando Datos Redundantes y lo que el Modelo No Puede Ver}
 
-Previo a la especificación del modelo, se evaluó la estructura de cobarianza de los predictores mediante el Factor de Inflación de Varianza (VIF). El análisis diagnóstico arrojó un VIF crítico de 8.7 para el diferencial de la relación bajas/muertes (KDR), lo que evidenció una colinealidad severa con el diferencial de Rating. A fin de preservar la estabilidad matemática del muestreador MCMC y evitar la inflación de la varianza en los coeficientes posteriores, se excluyó formalmente el KDR de la matriz de diseño, manteniendo únicamente los cuatro predictores descritos cuya covarianza se sitúa en rangos estadísticamente tolerables.
+Antes de poner a funcionar el modelo, se realizó un control para evitar usar variables "redundantes", es decir, que nos dijeran exactamente lo mismo. El análisis mostró que la famosa relación de bajas y muertes (KDR) estaba tan fuertemente amarrada al Rating 2.0 que incluirlas juntas causaría problemas de estabilidad matemática en los cálculos del modelo. Por ende, se decidió descartar el KDR y quedarnos únicamente con las cuatro variables explicadas arriba, las cuales son muy informativas y no se estorban entre sí.
 
-Finalmente, se reconoce como limitación estructural que los datos capturan exclusivamente dimensiones tácticas y mecánicas digitalizadas. En consecuencia, el modelo presenta un límite de observabilidad sobre variables cualitativas y factores latentes de alta influencia en los deportes electrónicos, tales como la sinergia comunicativa en tiempo real, el impacto directivo del entrenador en las pausas tácticas y el estado de fatiga o resiliencia psicológica de los competidores durante el encuentro.
+Por último, es valioso reconocer con honestidad lo que las matemáticas no pueden medir. Al basarnos únicamente en los números que registra el servidor de juego, nuestro estudio no puede observar factores humanos invisibles pero cruciales en el deporte electrónico: la calidad de la comunicación interna, las decisiones y el apoyo táctico del entrenador durante las pausas, o el cansancio y la fortaleza mental de los jugadores bajo la presión de un torneo en vivo.
 
 \section{METODOLOGÍA O ESTRATEGIA DE ANÁLISIS}
 
