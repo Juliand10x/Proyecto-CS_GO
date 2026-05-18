@@ -1,5 +1,6 @@
 \documentclass[twocolumn,10pt]{article}
 \usepackage[letterpaper,left=1.95cm,right=1.95cm,top=2.5cm,bottom=3.16cm]{geometry}
+\usepackage[T1]{fontenc}
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{balance}
@@ -9,6 +10,7 @@
 \usepackage{amssymb}
 \graphicspath{{images/}}
 \input{parametros.sty} 
+\usepackage{placeins}
 
 %%%%%%% ENCABEZADO %%%%%%%%%%%%%%%%%%%%
 
@@ -37,7 +39,7 @@ Determinantes del éxito competitivo en Counter-Strike: Global Offensive: Un an�
     \begin{center}
         \textbf{RESUMEN}
     \end{center}
-    Este proyecto nace de la curiosidad por entender cómo se gana realmente en el mundo profesional del Counter-Strike. Mediante un enfoque bayesiano, se analizan miles de partidas de alto nivel para encontrar qué variables son las que de verdad inclinan la balanza. A diferencia de los modelos comunes que solo dan un porcentaje fijo, esta investigación se enfoca en medir la incertidumbre para saber qué tan confiable es cada predicción. Los resultados muestran que al usar información previa y considerar la diferencia entre mapas, se logra una visión más realista de las probabilidades de éxito\cite{csgodataset2020}.
+    Este proyecto nace de la curiosidad por entender cómo se gana realmente en el mundo profesional del Counter-Strike, donde la paridad extrema hace que predecir victorias sea un desafío lleno de incertidumbre. Con el objetivo de identificar las variables críticas de éxito, este artículo analiza una muestra histórica de partidas de élite. Mediante una regresión logística bayesiana jerárquica con interceptos aleatorios por mapa, se explora cómo influyen el desempeño individual y el escenario de juego. Los resultados revelan que la consistencia técnica general y el volumen de daño son los motores principales del triunfo, mientras que las tácticas pasivas orientadas a la supervivencia reducen el porcentaje de éxito al ceder el control espacial. Asimismo, se demuestra que los mapas no son neutrales, presentando asimetrías que alteran la probabilidad base de victoria. El estudio contribuye a desmitificar las métricas individuales populares, aporta una base científica para entrenadores y resalta el valor de cuantificar la incertidumbre con honestidad estadística en los Esports.
     \vspace{0.2cm}
 
     \keywordsSpan{Esports, Modelado Bayesiano, CS:GO, Análisis de Datos, Incertidumbre, Validación Predictiva.}
@@ -50,12 +52,12 @@ Determinantes del éxito competitivo en Counter-Strike: Global Offensive: Un an�
 
 \section{INTRODUCCIÓN}
 
-Imagina que se está viendo la Gran Final de un Mundial de CS:GO. El marcador está 14-14 en el mapa de \textit{Inferno}. De repente, el jugador estrella hace una jugada increíble: tres bajas seguidas que parecen asegurar la ronda. Sin embargo, en un parpadeo, el otro equipo desactiva la bomba y se lleva el mapa. Aquí surge la duda que motiva este proyecto: ¿por qué si un jugador brilla tanto, su equipo termina perdiendo? ¿Acaso ganar depende solo de tener a los mejores jugadores, o hay un trabajo en equipo invisible que define todo? ¿Qué tanto importa el lado del mapa en el que se juega, o quién consigue la primera baja bajo tanta presión? Estas interrogantes demuestran que, muchas veces, las estadísticas que vemos en pantalla solo nos cuentan una pequeña parte de la historia.
+Imagina que se está viendo la Gran Final de un Mundial de CS:GO. El marcador está 14-14 en el mapa de \textit{Inferno}. De repente, el jugador estrella hace una jugada increíble: tres bajas seguidas que parecen asegurar la ronda. Sin embargo, en un parpadeo, el otro equipo desactiva la bomba y se lleva el mapa. Aquí surge la duda que motiva este proyecto: ¿por qué si un jugador brilla tanto, su equipo termina perdiendo? ¿Acaso ganar depende solo de tener a los mejores jugadores, o hay un trabajo en equipo invisible que define todo? ¿Qué tanto importa el lado del mapa en el que se juega, o quién consigue la primera baja bajo tanta presión? Estas interrogantes demuestran que, muchas veces, las estadísticas que se observan en pantalla solo cuentan una pequeña parte de la historia.
 
 \subsection{Contexto y Relevancia del Problema}
-Hoy en día, el Counter-Strike es una industria gigante que mueve millones de dólares, y plataformas como \textit{HLTV.org} guardan los datos de miles de partidas cada año. En este nivel competitivo, los equipos son tan parecidos que la diferencia entre ganar y perder es mínima. Ante un juego tan cambiante, los modelos de predicción tradicionales fallan porque entregan un porcentaje fijo, como si ganar fuera algo seguro. Olvidan que el azar y la \textbf{incertidumbre epistémica} —es decir, aceptar que hay elementos que no podemos predecir con total seguridad— alteran por completo las probabilidades.
+Hoy en día, el Counter-Strike es una industria gigante que mueve millones de dólares, y plataformas como \textit{HLTV.org} guardan los datos de miles de partidas cada año. En este nivel competitivo, los equipos son tan parecidos que la diferencia entre ganar y perder es mínima. Ante un juego tan cambiante, los modelos de predicción tradicionales fallan porque entregan un porcentaje fijo, como si ganar fuera algo seguro. Olvidan que el azar y la \textbf{incertidumbre epistémica} —es decir, aceptar que hay elementos que no se pueden predecir con total seguridad— alteran por completo las probabilidades.
 
-Para abordar este problema, la estadística bayesiana se presenta como la solución ideal. A diferencia de los métodos comunes, un enfoque bayesiano permite calcular y visualizar explícitamente qué tan seguros estamos de una predicción. Además, dado que cada mapa en CS:GO tiene características tácticas únicas (algunos favorecen más a la defensa y otros al ataque), es necesario utilizar un modelo \textbf{jerárquico}. Esto significa que el modelo no asume que todas las partidas son iguales, sino que ajusta sus cálculos dependiendo del contexto del mapa en el que se juega.
+Para abordar este problema, la estadística bayesiana se presenta como la solución ideal \cite{mcgrayne2011theory}. A diferencia de los métodos comunes, un enfoque bayesiano permite calcular y visualizar explícitamente el nivel de certeza de una predicción. Además, dado que cada mapa en CS:GO tiene características tácticas únicas (algunos favorecen más a la defensa y otros al ataque), es necesario utilizar un modelo \textbf{hierárquico}. Esto significa que el modelo no asume que todas las partidas son iguales, sino que ajusta sus cálculos dependiendo del contexto del mapa en el que se juega.
 
 Es aquí donde este estudio resulta realmente útil. Superar las estadísticas básicas y los pronósticos engañosos beneficia a diferentes actores del mundo de los Esports. Para los equipos y entrenadores, ayuda a descubrir nuevos talentos y a plantear mejores tácticas al entender qué es lo que realmente hace ganar rondas. Por otro lado, ofrece a las plataformas de análisis y sitios de pronósticos una forma más honesta de medir el riesgo. Por lo tanto, la meta de este proyecto no es solo intentar adivinar quién será el ganador, sino crear herramientas que midan cuánta duda hay detrás de cada predicción, logrando así un análisis mucho más realista y confiable.
 
@@ -85,29 +87,31 @@ Es en este punto donde la estadística bayesiana cobra relevancia. El sistema \t
 
 A pesar de estos avances, existe un vacío en la literatura: mientras se usa \textit{Machine Learning} para predecir con variables de juego y modelos bayesianos para calificar talento, hay escasos intentos de fusionar ambos mundos mediante un enfoque \textbf{jerárquico}. Tal como plantean textos fundamentales como el de Gelman et al. \cite{gelman2013bayesian}, las estructuras jerárquicas permiten agrupar datos según su contexto. En CS:GO, el contexto es el mapa, ya que cada uno posee asimetrías tácticas que alteran las reglas del juego.
 
-Por lo tanto, la literatura analizada justifica directamente nuestra pregunta de investigación. Este proyecto busca llenar el vacío existente al tomar las variables tácticas más importantes (identificadas por la literatura clásica) y procesarlas a través de un modelo bayesiano jerárquico que, en lugar de entregar una certeza engañosa, cuantifique la incertidumbre epistémica y ajuste sus predicciones a la asimetría táctica de cada mapa.
+Por lo tanto, la literatura analizada justifica directamente la pregunta de investigación planteada. Este proyecto busca llenar el vacío existente al tomar las variables tácticas más importantes (identificadas por la literatura clásica) y procesarlas a través de un modelo bayesiano jerárquico que, en lugar de entregar una certeza engañosa, cuantifique la incertidumbre epistémica y ajuste sus predicciones a la asimetría táctica de cada mapa.
 
 \subsection{Justificación y Contribución}
 Este trabajo se justifica por la necesidad de análisis en los Esports que integren la naturaleza impredecible del juego. La estadística bayesiana permite unir los datos con la realidad del servidor, ofreciendo una herramienta para que analistas y aficionados comprendan la magnitud de la incertidumbre detrás de cada porcentaje de éxito, aportando una visión más realista y "honesta" del desempeño competitivo.
 
 \subsection{Estructura del Artículo}
-El documento se organiza de la siguiente manera: la Sección 2 describe la fuente de datos y el análisis exploratorio (EDA); la Sección 3 expone el diseño metodológico bayesiano; la Sección 4 presenta los resultados y su interpretación; y la Sección 5 cierra con las conclusiones y limitaciones.
+El resto de este artículo se organiza de una manera muy sencilla para guiar al lector en esta aventura probabilística. En la Sección 3 se detalla la fuente de datos, el proceso de limpieza y la operacionalización de las variables. La Sección 4 explica paso a paso la estrategia de análisis, partiendo de la exploración visual y colinealidad hasta construir las ecuaciones del modelo bayesiano jerárquico. En la Sección 5 se discuten los resultados obtenidos, revelando qué variables dominan el servidor y cómo influyen los mapas en la victoria. Finalmente, la Sección 6 y la Sección 7 cierran con honestidad analizando las limitaciones del estudio y las conclusiones finales.
 
 \section{DATOS Y OPERACIONALIZACIÓN}
 
-El presente estudio utiliza datos históricos reales de partidas profesionales de CS:GO recopiladas por la plataforma \textit{HLTV.org} \cite{hltv2024} y organizadas para fines académicos por Broms y Nordansj\"{o} \cite{csgodataset2020}. En este análisis, cada observación representa lo ocurrido en un mapa específico de una partida competitiva.
+El punto de partida de esta investigación es una base de datos que reúne información histórica de partidas profesionales de Counter-Strike. Estos datos secundarios de carácter observacional provienen de la plataforma especializada \textit{HLTV.org} \cite{hltv2024} y fueron recopilados con fines pedagógicos por Broms y Nordansjö \cite{csgodataset2020}. Cada una de las observaciones representa un mapa competitivo disputado, el cual constituye la unidad de análisis del estudio. En total, el análisis abarca encuentros de la escena competitiva de élite internacional jugados entre 2016 y 2020, consolidando una muestra definitiva de \textbf{5,745 observaciones de mapas} y \textbf{3,341 partidas únicas}.
+
+Para comprender cómo se estructuran estos datos, es importante señalar que la información original se dividía en dos bloques principales de rendimiento: por un lado, el registro de desempeño técnico individual (bajas, muertes y calificaciones) de cada uno de los cinco integrantes de ambos equipos y, por el otro, el registro global de los resultados del encuentro (fecha, mapa disputado, marcador final, ganador y bando inicial). 
 
 \subsection{El Reto de Unir los Datos: Una Solución Sencilla}
 
-Al intentar juntar la información del desempeño de los jugadores con los resultados de las partidas, surgió un problema muy común pero molesto: la escritura de los nombres de los equipos no coincidía. Mientras que en una parte de los datos aparecían en mayúsculas (por ejemplo, \textit{'ASTRALIS'}), en la otra estaban escritos de forma mixta (\textit{'Astralis'}). Un cruce de datos estricto que buscara coincidencia exacta de letras arrojaba una muestra muy pequeña de apenas 218 registros, lo cual impedía hacer un análisis serio. 
+Teniendo estos dos bloques separados, el primer gran paso de la investigación consistió en fusionarlos para poder asociar directamente el rendimiento técnico de los jugadores con el resultado final de cada mapa. Sin embargo, al intentar juntar la información de desempeño con los resultados, surgió un problema de calidad de datos muy común: la escritura de los nombres de los equipos no coincidía. Mientras que en los registros de rendimiento los equipos aparecían escritos completamente en mayúsculas (por ejemplo, \textit{'ASTRALIS'}), en la tabla de resultados generales estaban en formato mixto (\textit{'Astralis'}). Un cruce de datos estricto que buscara coincidencia exacta de letras arrojaba una muestra muy pequeña de apenas 218 registros, lo cual impedía hacer un análisis serio. 
 
-Para resolver este inconveniente sin perder información valiosa, se aplicó una corrección simple: convertir todos los nombres de los equipos a mayúsculas y borrar los espacios vacíos sobrantes antes de unirlos, permitiendo un margen de tiempo de hasta 3 días entre la fecha de las estadísticas y la de la partida. Gracias a este ajuste sencillo, la muestra creció 26 veces, logrando un total definitivo de \textbf{5,745 mapas jugados} en \textbf{3,341 partidas profesionales únicas} disputadas entre 2016 y 2020. Contar con esta base de datos tan grande asegura que los resultados del modelo sean sumamente estables y representativos del juego real.
+Para resolver este inconveniente sin perder información valiosa, se aplicó una corrección simple: convertir todos los nombres de los equipos a mayúsculas y borrar los espacios vacíos sobrantes antes de unirlos, permitiendo un margen de tiempo de hasta tres días respecto a la fecha del juego. Gracias a este ajuste sencillo, la muestra creció 26 veces, logrando el total definitivo de \textbf{5,745 mapas jugados} en \textbf{3,341 partidas profesionales únicas} disputadas entre 2016 y 2020. Contar con esta base de datos tan grande asegura que los resultados del modelo sean sumamente estables y representativos del juego real.
 
 \subsection{¿Qué Mide el Modelo y Cómo lo Mide?}
 
-Para predecir el resultado, la variable clave a definir es la victoria o derrota. Esto se maneja de forma sencilla: si el equipo catalogado como "Equipo 1" gana la partida en el mapa correspondiente, se anota un 1; de lo contrario, se anota un 0. 
+Para predecir el resultado, la variable clave a definir es la victoria o derrota. Esto se maneja de forma sencilla: si el equipo catalogado como "Equipo 1" gana la partida en el mapa correspondiente, se anota un 1; de lo contrario, se anota un 0.
 
-Para saber qué influye en este resultado, el modelo compara directamente el desempeño reciente de ambos equipos. Para cada métrica, se calcula el promedio del desempeño de los cinco jugadores de un equipo y se le resta el promedio del rival (Equipo 1 - Equipo 2). Así, obtenemos una "ventaja o desventaja" en las siguientes cuatro variables que cualquier aficionado al juego reconoce de inmediato:
+Para saber qué influye en este resultado, el modelo compara directamente el desempeño reciente de ambos equipos. Para cada métrica, se calcula el promedio del desempeño de los cinco jugadores de un equipo y se le resta el promedio del rival (Equipo 1 - Equipo 2). Así, se obtiene una "ventaja o desventaja" en las siguientes cuatro variables que cualquier aficionado al juego reconoce de inmediato:
 \begin{itemize}[leftmargin=*]
     \item \textbf{Rating 2.0 (Diferencial):} Es la métrica reina del juego. Resume qué tan bien juega alguien en general, combinando bajas, muertes y otras estadísticas clave.
     \item \textbf{Impacto Táctico (Diferencial):} Mide la capacidad de un equipo para lograr jugadas espectaculares o críticas bajo presión, como conseguir la primera baja de la ronda, hacer múltiples bajas seguidas o ganar rondas estando en inferioridad numérica.
@@ -117,16 +121,16 @@ Para saber qué influye en este resultado, el modelo compara directamente el des
 
 \subsection{Evitando Datos Redundantes y lo que el Modelo No Puede Ver}
 
-Antes de poner a funcionar el modelo, se realizó un control para evitar usar variables "redundantes", es decir, que nos dijeran exactamente lo mismo. El análisis mostró que la famosa relación de bajas y muertes (KDR) estaba tan fuertemente amarrada al Rating 2.0 que incluirlas juntas causaría problemas de estabilidad matemática en los cálculos del modelo. Por ende, se decidió descartar el KDR y quedarnos únicamente con las cuatro variables explicadas arriba, las cuales son muy informativas y no se estorban entre sí.
+Antes de poner a funcionar el modelo, se realizó un control para evitar usar variables "redundantes", es decir, que indicaran exactamente lo mismo. El análisis mostró que la famosa relación de bajas y muertes (KDR) estaba tan fuertemente amarrada al Rating 2.0 que incluirlas juntas causaría problemas de estabilidad matemática en los cálculos del modelo \cite{igual2017introduction}. Por ende, se decidió descartar el KDR y conservar únicamente las cuatro variables explicadas arriba, las cuales son muy informativas y no se estorban entre sí.
 
-Por último, es valioso reconocer con honestidad lo que las matemáticas no pueden medir. Al basarnos únicamente en los números que registra el servidor de juego, nuestro estudio no puede observar factores humanos invisibles pero cruciales en el deporte electrónico: la calidad de la comunicación interna, las decisiones y el apoyo táctico del entrenador durante las pausas, o el cansancio y la fortaleza mental de los jugadores bajo la presión de un torneo en vivo.
+Por último, es valioso reconocer con honestidad lo que las matemáticas no pueden medir. Al basarse únicamente en los números que registra el servidor de juego, el presente estudio no puede observar factores humanos invisibles pero cruciales en el deporte electrónico: la calidad de la comunicación interna, las decisiones y el apoyo táctico del entrenador durante las pausas, o el cansancio y la fortaleza mental de los jugadores bajo la presión de un torneo en vivo.
 
 \section{METODOLOGÍA O ESTRATEGIA DE ANÁLISIS}
 
-El presente estudio adopta un diseño metodológico de tipo observacional estructurado en dos fases consecutivas: una fase de análisis exploratorio descriptivo y una fase de modelamiento estadístico predictivo e inferencial. Este enfoque mixto es el más adecuado dado que la pregunta de investigación busca examinar relaciones de alta influencia entre variables competitivas, al tiempo que reconoce la imposibilidad de establecer causalidad estricta debido a la naturaleza retrospectiva de los datos.
+Una vez definidas las variables clave y comprendidas las limitaciones de la información disponible, el siguiente paso es definir cómo se procesarán estos datos para responder a la pregunta de investigación. Para ello, el presente estudio adopta un diseño metodológico estructurado en dos fases consecutivas: primero, un acercamiento visual a los datos (análisis exploratorio), y segundo, el modelamiento predictivo bayesiano. Este enfoque es el más adecuado para examinar qué métricas dominan la victoria, aceptando que, al tratarse de datos observacionales y pasados, no se busca probar causalidad estricta, sino identificar influencias probabilísticas fuertes.
 
-\subsection{Fase Descriptiva y Exploratoria}
-En la fase inicial se caracterizó la distribución de las variables y se observaron patrones fundamentales. El análisis evidenció una superposición extrema en las métricas de \textit{Rating} entre equipos (Figura \ref{fig:DistFig}), confirmando que la paridad en la élite es altísima. Asimismo, se constató que variables clave como el \textit{Impacto Táctico} presentan una correlación monótona creciente con la victoria (Figura \ref{fig:RatingWin} y \ref{fig:ImpactViolin}), sugiriendo que la diferencia recae en aparecer en rondas críticas. Adicionalmente, el análisis del balance entre bandos demostró claras asimetrías tácticas dependientes del mapa jugado (Figura \ref{fig:MapBalance}). Finalmente, la exploración de colinealidad (Figura \ref{fig:CorrFig}) permitió depurar las dimensiones estadísticas utilizadas.
+\subsection{Explorando los Datos: La Extrema Paridad del Juego}
+Antes de construir ecuaciones complejas, la fase inicial consistió en observar el comportamiento real de los equipos. Al graficar los datos, se evidenció una superposición extrema en las métricas de desempeño, como el \textit{Rating}, entre los distintos equipos (Figura \ref{fig:DistFig}). Básicamente, las gráficas de ganadores y perdedores son casi idénticas. Esto confirma matemáticamente lo que cualquier aficionado percibe: la paridad en la élite es altísima y todos juegan a un nivel muy similar, lo que hace difícil predecir el resultado con una sola mirada.
 
 \begin{figure}[htpb]
     \centering
@@ -134,6 +138,8 @@ En la fase inicial se caracterizó la distribución de las variables y se observ
     \caption{Distribución del Rating: La paridad extrema en la élite.}
     \label{fig:DistFig}
 \end{figure}
+
+A pesar de lo parecidos que son los equipos, se constató que variables como el \textit{Impacto Táctico} presentan una relación directa con la victoria (Figura \ref{fig:RatingWin} y \ref{fig:ImpactViolin}). Las gráficas muestran claramente que a mayor diferencia de talento e impacto a favor de un equipo, más probable es que se obtenga la victoria. Esto sugiere que la diferencia entre ganar y perder recae muchas veces en aquellos jugadores capaces de aparecer en las rondas críticas bajo presión.
 
 \begin{figure}[htpb]
     \centering
@@ -149,6 +155,8 @@ En la fase inicial se caracterizó la distribución de las variables y se observ
     \label{fig:ImpactViolin}
 \end{figure}
 
+Adicionalmente, al observar el balance de victorias según el lado en el que se juega, se demostraron claras asimetrías tácticas dependiendo del mapa (Figura \ref{fig:MapBalance}). Como se observa, algunos mapas le dan una clara ventaja al bando que defiende, mientras que otros facilitan el ataque. Finalmente, una revisión de colinealidad (Figura \ref{fig:CorrFig}) permitió depurar las variables estadísticas utilizadas, descartando aquellas redundantes (como la relación de bajas y muertes) para evitar introducir información repetida en el modelo.
+
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\linewidth]{balance_ct_t_mapas.png}
@@ -163,15 +171,17 @@ En la fase inicial se caracterizó la distribución de las variables y se observ
     \label{fig:CorrFig}
 \end{figure}
 
-\subsection{Fase de Modelamiento: Regresión Logística Bayesiana Jerárquica}
-A partir de los hallazgos exploratorios, se estimó un modelo de Regresión Logística Bayesiana Jerárquica. La elección de este modelo se justifica directamente por dos fenómenos descubiertos en la fase descriptiva: primero, la necesidad de cuantificar explícitamente la incertidumbre epistémica generada por la extrema paridad técnica; y segundo, la urgencia de incorporar interceptos aleatorios (estructura jerárquica) que reconozcan las asimetrías tácticas propias de cada mapa.
+\FloatBarrier
 
-Dado que la variable respuesta es binaria, se definió la verosimilitud mediante una distribución de Bernoulli conectada a través de una función de enlace \textit{logit}:
+\subsection{La Solución Jerárquica: Incorporando el Mapa y la Incertidumbre}
+A partir de los hallazgos exploratorios, resulta evidente que un modelo predictivo tradicional y estático no basta. Por ello, se estimó un modelo de \textbf{Regresión Logística Bayesiana Jerárquica} \cite{kruschke2014doing}. Esta elección responde directamente a dos fenómenos observados: primero, la necesidad de cuantificar la gran incertidumbre (\textit{incertidumbre epistémica}) generada por esa paridad extrema; y segundo, la urgencia de utilizar una estructura "hierárquica" que permita ajustar matemáticamente las probabilidades basándose en las ventajas y asimetrías tácticas propias de cada mapa.
+
+Dado que solo hay dos resultados posibles (victoria o derrota), el esqueleto del modelo utiliza una \textbf{regresión logística} \cite{james2021introduction}. A diferencia de una regresión lineal estándar, que traza una línea recta infinita y podría arrojar probabilidades absurdas (como un 150\% o un -20\% de ganar), la regresión logística utiliza una función matemática llamada \textit{logit}. Esta función toma esa línea y la "dobla" en una curva en forma de "S" (o sigmoide), cuyos límites están estrictamente acotados entre 0\% (derrota absoluta) y 100\% (victoria segura), asegurando que todas las predicciones tengan un sentido probabilístico real. El modelo se define formalmente como una distribución de Bernoulli conectada a través de esta transformación:
 \begin{equation}
     y_i \sim \text{Bernoulli}(\text{logit}^{-1}(\alpha_{map[i]} + \textstyle\sum \beta_k X_{ki}))
 \end{equation}
 
-Para las estimaciones previas (\textit{priors}), se optó por una filosofía "débilmente informativa". Se asignaron distribuciones Normales centradas en cero a los coeficientes de desempeño ($\beta_k \sim \text{Normal}(0, 5^2)$), permitiendo que los datos dictaminen la influencia real del impacto, rating y ADR sin imponer sesgos teóricos (Figura \ref{fig:Priors}). A su vez, se utilizó una distribución \textit{Half-Normal} ($\sigma_\alpha \sim \text{HalfNormal}(2)$) para el hiperparámetro de variabilidad de los mapas, lo cual evita la sobreestimación estadística de diferencias en escenarios con menor volumen de partidas.
+Para guiar al modelo antes de que observe los datos (\textit{priors}), se optó por una filosofía "débilmente informativa". En lugar de imponer creencias rígidas previas, se asignaron distribuciones centradas en cero para los coeficientes de desempeño ($\beta_k \sim \text{Normal}(0, 5^2)$). Esto permite que sean los datos del servidor los que dictaminen la influencia real del impacto, el rating y el ADR sin forzar sesgos teóricos (Figura \ref{fig:Priors}). Por su parte, la variabilidad de los mapas se controló con una distribución \textit{Half-Normal} ($\sigma_\alpha \sim \text{HalfNormal}(2)$), lo cual actúa como un seguro para evitar sacar conclusiones exageradas en mapas que se hayan jugado con menor frecuencia.
 
 \begin{figure}[htpb]
     \centering
@@ -180,12 +190,12 @@ Para las estimaciones previas (\textit{priors}), se optó por una filosofía "d�
     \label{fig:Priors}
 \end{figure}
 
-\subsection{Estrategia de Evaluación}
-Para medir la solidez del modelo propuesto, la estrategia de evaluación contempla dos métricas bayesianas fundamentales. Primero, el uso de Chequeos Predictivos Posteriores (PPC) para verificar que las simulaciones del modelo logren capturar fielmente la distribución real observada en el servidor. Segundo, la evaluación de los Intervalos de Densidad más Alta (HDI) para estimar matemáticamente el nivel de certeza de las variables predictoras. Este marco evaluativo garantiza una medición "honesta", penalizando predicciones deterministas en escenarios altamente volátiles.
+\subsection{Asegurando la Honestidad del Pronóstico}
+Para confirmar que el modelo no arroje certezas engañosas, la estrategia de evaluación se divide en dos enfoques: la validación de sus parámetros internos y la evaluación de su capacidad predictiva externa. Para los parámetros internos, se utiliza el Chequeo Predictivo Posterior (PPC), que funciona como un simulador: si el modelo es sólido, al ponerlo a recrear miles de partidas virtuales, la distribución de sus resultados debería verse casi idéntica a los datos históricos observados en el servidor. Asimismo, se evalúan los Intervalos de Densidad más Alta (HDI) para medir el nivel de incertidumbre en cada coeficiente. Para la capacidad predictiva externa, el rendimiento del modelo se valida cuantitativamente mediante tres herramientas probabilísticas clásicas: el \textbf{Brier Score} (para medir la precisión del error cuadrático medio en las probabilidades asignadas), el \textbf{AUC-ROC} (para evaluar la capacidad de discriminar correctamente entre victorias y derrotas) y las \textbf{Curvas de Calibración empírica} (para verificar que las probabilidades estimadas se alineen de forma honesta con las frecuencias reales observadas). Este marco evaluativo robusto garantiza predicciones genuinamente "honestas" y penaliza cualquier exceso de confianza probabilística en un entorno tan volátil como el CS:GO.
 
 \section{RESULTADOS Y DISCUSIÓN}
 
-La implementación del muestreo MCMC mediante el algoritmo NUTS sobre la muestra expandida de 5,745 observaciones demostró una excelente estabilidad y convergencia matemática. Todas las cadenas alcanzaron valores de $\hat{R}$ entre 1.000 y 1.001 para todos los parámetros principales ($\mu_\alpha$, $\sigma_\alpha$, $\alpha_j$, y $\beta_k$), y los tamaños de muestra efectivos (ESS tanto Bulk como Tail) oscilaron entre 10,500 y 20,000 muestras independientes. Estos indicadores descartan la presencia de bimodalidad o problemas de exploración en el espacio de parámetros, respaldando la validez estadística de las inferencias.
+Una vez estructurado el modelo jerárquico, se procedió a ejecutar las simulaciones probabilísticas sobre la base de datos de 5,745 mapas. En el análisis bayesiano, esto se realiza mediante algoritmos de muestreo (como MCMC y NUTS) que exploran el espacio de parámetros en busca de combinaciones viables. Los resultados demostraron una estabilidad matemática impecable: el indicador de convergencia $\hat{R}$ (que funciona como un semáforo estadístico para verificar si las cadenas se han estabilizado) se situó en un rango perfecto de entre 1.000 y 1.001 para todos los parámetros principales ($\mu_\alpha$, $\sigma_\alpha$, $\alpha_j$, y $\beta_k$), y los tamaños de muestra efectivos (ESS tanto Bulk como Tail) oscilaron entre 10,500 y 20,000 muestras independientes. Esto proporciona la certeza de que las inferencias son robustas y están libres de anomalías computacionales ocultas.
 
 \subsection{Análisis de los Coeficientes Posteriores ($\beta_k$)}
 
@@ -200,10 +210,10 @@ La estimación de los efectos marginales de los diferenciales de desempeño arro
 \toprule
 Predictor & Media Posterior & HDI 94\% & Estado \\
 \midrule
-$\text{diff\_rating}$ (Rating 2.0) & 4.95 & [2.87, 7.08] & ✅ HDI > 0 \\
+$\text{diff\_rating}$ (Rating 2.0) & 4.95 & [2.87, 7.08] & (+) $\text{HDI} > 0$ \\
 $\text{diff\_impact}$ (Impacto) & 0.36 & [-1.72, 2.55] & Cruzado 0 \\
-$\text{diff\_dmr}$ (ADR) & 0.095 & [0.04, 0.15] & ✅ HDI > 0 \\
-$\text{diff\_kast}$ (KAST) & -5.47 & [-8.29, -2.80] & ⚠️ HDI < 0 \\
+$\text{diff\_dmr}$ (ADR) & 0.095 & [0.04, 0.15] & (+) $\text{HDI} > 0$ \\
+$\text{diff\_kast}$ (KAST) & -5.47 & [-8.29, -2.80] & (-) $\text{HDI} < 0$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -215,13 +225,15 @@ $\text{diff\_kast}$ (KAST) & -5.47 & [-8.29, -2.80] & ⚠️ HDI < 0 \\
     \label{fig:Betas}
 \end{figure}
 
-El diferencial de \textbf{Rating 2.0} se consolida como el factor más dominante en el éxito de una partida ($\beta_1 = 4.95$, HDI 94\% $[2.87, 7.08]$). Dado que el intervalo se encuentra estrictamente a la derecha del cero, existe total certidumbre estadística sobre su asociación positiva con la probabilidad de victoria. Este resultado confirma que el desempeño general del equipo en el servidor es el motor principal del triunfo.
+Como era de esperarse, el diferencial de \textbf{Rating 2.0} se consolida como el factor más decisivo en el servidor ($\beta_1 = 4.95$, HDI 94\% $[2.87, 7.08]$). En términos bayesianos, al observar que todo su intervalo de incertidumbre (HDI del 94\%) se ubica estrictamente a la derecha del cero, es posible afirmar con total certeza estadística que un mejor rendimiento individual general se traduce directamente en un impulso sustancial a la probabilidad de ganar. No se trata de una correlación casual; representa el motor principal de la victoria.
 
 En segundo lugar, el diferencial de daño promedio por ronda (\textbf{ADR}, capturado por $\text{diff\_dmr}$) también revela una influencia positiva inequívoca ($\beta_3 = 0.095$, HDI 94\% $[0.04, 0.15]$). Aunque la escala del coeficiente es numéricamente menor debido a la métrica base (rango de daño nominal de 0 a 100), su significancia bayesiana es sumamente alta y corrobora que el volumen de daño directo propinado al oponente desgasta tácticamente sus posibilidades de ganar.
 
 Por el contrario, el diferencial de \textbf{Impacto Táctico} presenta una gran incertidumbre epistémica en sus estimaciones marginales ($\beta_2 = 0.36$, HDI 94\% $[-1.72, 2.55]$). Dado que su HDI cruza ampliamente el cero, no es posible afirmar que el impacto de jugadas aisladas (como bajas iniciales o situaciones de \textit{clutch}) aporte un efecto lineal independiente una vez controlado el Rating y el ADR. Esto sugiere que la espectacularidad de ciertas jugadas individuales, aunque valiosa en la transmisión televisiva, no sustituye la consistencia del rendimiento general del equipo.
 
 Un hallazgo metodológico notable es el fuerte coeficiente negativo del diferencial de \textbf{KAST} ($\beta_4 = -5.47$, HDI 94\% $[-8.29, -2.80]$). En analítica deportiva, este fenómeno responde a un \textbf{efecto de supresión} o colinealidad inversa condicional. KAST es un porcentaje de consistencia que premia la supervivencia o el intercambio. Una vez que se controlan estadísticamente el Rating 2.0 y el ADR (que capturan la agresión y efectividad directa), un equipo con mayor KAST pero menor daño o rating refleja un estilo de juego excesivamente pasivo u orientado a la supervivencia tardía, lo que en el circuito profesional reduce sustancialmente el porcentaje de éxito al ceder el control espacial del mapa al rival.
+
+En la Figura \ref{fig:EfectosMarginales} se aprecian con claridad los efectos marginales estimados para cada una de estas variables sobre la probabilidad final de victoria. La pronunciada pendiente de la curva del \textit{Rating 2.0} confirma que pequeños aumentos en el diferencial técnico disparan la probabilidad de ganar, mientras que el diferencial de \textit{ADR} muestra un crecimiento más progresivo. Por el contrario, la curva correspondiente al \textit{Impacto Táctico} se muestra notablemente más plana y acompañada por una banda de incertidumbre posterior sumamente ancha que cruza la neutralidad, reflejando visualmente la alta ambigüedad marginal de este predictor. Finalmente, la trayectoria del \textit{KAST} describe una caída empinada que ilustra el efecto de supresión discutido: a mayor consistencia pasiva (supervivencia sin daño o bajas efectivas), la probabilidad de victoria se desploma dramáticamente.
 
 \begin{figure}[htpb]
     \centering
@@ -250,7 +262,7 @@ El modelo jerárquico demostró la existencia de asimetrías tácticas significa
 \toprule
 Mapa & Media ($\alpha_j$) & Prob. Base ($p_j$) & HDI 94\% \\
 \midrule
-Mirage & 0.146 & 0.536 & ✅ HDI > 0 \\
+Mirage & 0.146 & 0.536 & (+) $\text{HDI} > 0$ \\
 Train & 0.079 & 0.520 & Cruza 0 \\
 Cache & 0.028 & 0.507 & Cruza 0 \\
 Dust2 & 0.001 & 0.500 & Cruza 0 \\
@@ -258,29 +270,29 @@ Vertigo & 0.001 & 0.500 & Cruza 0 \\
 Nuke & -0.020 & 0.495 & Cruza 0 \\
 Cobblestone & -0.032 & 0.492 & Cruza 0 \\
 Inferno & -0.050 & 0.488 & Cruza 0 \\
-Overpass & -0.160 & 0.460 & ⚠️ HDI < 0 \\
+Overpass & -0.160 & 0.460 & (-) $\text{HDI} < 0$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Los resultados muestran que mapas como \textit{Dust2} y \textit{Vertigo} se encuentran en un equilibrio competitivo absoluto ($p_j = 0.500$), comportándose de manera totalmente simétrica. No obstante, se detectaron dos asimetrías estadísticamente relevantes:
-\begin{enumerate}
-    \item \textbf{Mirage:} Presenta un sesgo favorable para el equipo Local ($\alpha_{\text{mirage}} = 0.146$, $p_{\text{base}} = 0.536$), cuyo HDI al 94\% se ubica enteramente por encima de cero. Esto confirma que el bando inicial o la distribución física de Mirage provee una ventaja estructural reproducible al equipo que inicia en la zona preferente del servidor.
-    \item \textbf{Overpass:} Exhibe una asimetría inversa muy marcada ($\alpha_{\text{overpass}} = -0.160$, $p_{\text{base}} = 0.460$, HDI < 0), lo que penaliza significativamente la probabilidad inicial de victoria para el Equipo 1. Overpass es un mapa altamente táctico donde las rotaciones del bando antiterrorista (CT) son muy rápidas, lo que introduce sesgos considerables si el equipo designado como Local inicia en el bando más complejo (T).
-\end{enumerate}
+Los resultados muestran que mapas como \textit{Dust2} y \textit{Vertigo} se encuentran en un equilibrio competitivo absoluto ($p_j = 0.500$), comportándose de manera totalmente simétrica. No obstante, el modelo desveló un fenómeno que la comunidad de Counter-Strike percibe de manera intuitiva, pero que rara vez se mide con datos: los mapas no son neutrales. Se detectó que en \textit{Mirage} el equipo designado como Local (que suele gozar de prioridad en la elección de bando o de servidor) arranca con una probabilidad base favorable del 53.6\% ($\alpha_{\text{mirage}} = 0.146$, $p_{\text{base}} = 0.536$, $\text{HDI} > 0$). Por el contrario, en \textit{Overpass} la balanza se inclina en contra del Local, reduciendo su probabilidad inicial al 46.0\% ($\alpha_{\text{overpass}} = -0.160$, $p_{\text{base}} = 0.460$, $\text{HDI} < 0$). Esta asimetría estructural demuestra que el escenario de juego introduce un sesgo físico y táctico real que no debe ser ignorado por la analítica deportiva.
 
-\subsection{Validación Predictiva y Comparación de Modelos}
+\subsection{¿Qué tan bien predice nuestro modelo en la vida real?}
 
-Para validar formalmente el poder explicativo y predictivo de la formulación bayesiana jerárquica frente a modelos alternativos, se evaluaron diversas métricas sobre los datos y se realizó una comparación de modelos mediante la elpd-WAIC (Criterio de Información de Watanabe-Akaike).
+Para evaluar si toda esta estructura matemática realmente entiende el comportamiento en el servidor de juego, se le puso a hacer un experimento de simulación: recrear miles de partidas virtuales utilizando únicamente lo que aprendió durante su entrenamiento. El Chequeo Predictivo Posterior (PPC) que se muestra en la Figura \ref{fig:PpcGlobal} arrójo una grata sorpresa: la línea roja que representa las partidas reales observadas encaja con enorme precisión justo en el centro del bloque azul de las partidas simuladas por el modelo. Esto significa que nuestro modelo aprueba con honores el examen básico de coherencia, siendo capaz de imitar la realidad global del juego sin perderse en el camino.
 
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\linewidth]{ppc_global.png}
-    \caption{Chequeos Predictivos Posteriores (PPC): La calibración global del modelo simulado se ajusta con enorme precisión a la distribución empírica real.}
+    \caption{Chequeos Predictivos Posterior (PPC): La calibración global del modelo simulado se ajusta con enorme precisión a la distribución empírica real.}
     \label{fig:PpcGlobal}
 \end{figure}
 
-El Chequeo Predictivo Posterior (PPC) en la Figura \ref{fig:PpcGlobal} revela que las simulaciones derivadas del modelo posterior reproducen fielmente la proporción global de victorias del servidor. En términos predictivos individuales, el modelo obtuvo un \textbf{Brier Score de 0.2404}, lo que representa un error cuadrático medio de predicción sumamente bajo considerando la inmensa volatilidad de las partidas de élite. La curva de calibración (Figura \ref{fig:Calibracion}) corrobora una excelente alineación entre la probabilidad estimada por el modelo y la frecuencia empírica real de victorias, logrando un Expected Calibration Error (ECE) de apenas 0.012 (desviación promedio de solo el 1.2\%). El \textbf{AUC-ROC se situó en 0.6117}, un valor moderadamente positivo que refleja una estimación realista y estadísticamente honesta del éxito, lejos del exceso de confianza (\textit{overconfidence}) de los modelos deterministas tradicionales.
+A nivel de predicciones individuales de mapas, el modelo obtuvo un \textbf{Brier Score de 0.2404}. Aunque a primera vista este número parezca algo abstracto, en el mundo de la predicción probabilística es una excelente noticia. Dado que un modelo que simplemente adivina al azar (lanzando una moneda) obtendría un Brier Score de 0.25, un error de 0.2404 demuestra que el modelo está aportando información valiosa en un entorno sumamente caótico y volátil como el competitivo de élite, donde cualquier jugada inesperada puede cambiar el destino de una partida en un abrir y cerrar de ojos.
+
+La verdadera joya de la corona de este análisis es la curva de calibración (Figura \ref{fig:Calibracion}). En lugar de dar porcentajes exagerados para vender titulares llamativos, el modelo demuestra una honestidad estadística asombrosa. Su Expected Calibration Error (ECE) es de apenas 0.012. Esto quiere decir que cuando el modelo afirma que un equipo tiene, por ejemplo, un 70\% de probabilidad de ganar en un determinado mapa, en la realidad ese equipo gana el 71.2\% de las veces; un desvío promedio de tan solo el 1.2\%. El modelo no sufre de exceso de confianza (\textit{overconfidence}), un problema clásico en los modelos comerciales que suelen dar predicciones infladas que no se cumplen en el servidor.
+
+Por su parte, el \textbf{AUC-ROC se situó en 0.6117}. Es un valor moderadamente positivo que refleja de forma muy honesta lo impredecible que es el Counter-Strike profesional. En un nivel de élite donde los equipos juegan al límite y están tan parejos, prometer una precisión perfecta sería una mentira estadística; este número nos recuerda que, a pesar de tener los mejores datos posibles, el azar siempre conserva un rol protagónico dentro del servidor de juego.
 
 \begin{figure}[htpb]
     \centering
@@ -289,26 +301,41 @@ El Chequeo Predictivo Posterior (PPC) en la Figura \ref{fig:PpcGlobal} revela qu
     \label{fig:Calibracion}
 \end{figure}
 
-La justificación teórica de la estructura jerárquica quedó firmemente demostrada al comparar el modelo contra una especificación nula (regresión logística sin predictores y con un intercepto global fijo). El cálculo del elpd (Expected Log Predictive Density) arrojó una diferencia contundente:
+Finalmente, para justificar de forma rigurosa si valió la pena el esfuerzo de construir un modelo jerárquico en lugar de una regresión logística simple y plana, se realizó una comparación de modelos utilizando el Criterio de Información de Watanabe-Akaike (WAIC). Al contrastarlo con un modelo de referencia nulo, la diferencia en la densidad predictiva logarítmica esperada fue contundente:
 \begin{equation}
-    \Delta\text{elpd}_{\text{WAIC}} = +101.61 \quad (\text{Jerárquico vs. Nulo})
+    \Delta\text{elpd}_{\text{WAIC}} = +101.61 \quad (\text{Modelo Jerárquico vs. Modelo Nulo})
 \end{equation}
-Dado que el modelo jerárquico supera al modelo de referencia por más de 100 unidades de elpd (valor muy superior al umbral estándar de 2), se comprueba de forma robusta que la estructura de interceptos por mapa aporta un poder explicativo crucial y que su modelamiento probabilístico es de calidad superior para describir el fenómeno de la victoria competitiva.
+Al superar con creces el umbral académico estándar (que suele ser de apenas 2 unidades de diferencia), se comprueba de manera muy robusta que incorporar el contexto de los mapas mediante interceptos aleatorios aporta un poder explicativo crucial y que su modelamiento probabilístico es de calidad superior para retratar la competencia.
 
-\section{CONCLUSIONES Y LIMITACIONES}
+\subsection{Discusión Académica: Conectando los Datos con la Teoría}
 
-El presente estudio ha logrado con éxito modelar los determinantes críticos de la victoria competitiva en el circuito profesional de CS:GO mediante un enfoque de regresión logística bayesiana jerárquica. La investigación aporta dos grandes contribuciones a la literatura de analítica deportiva: primero, demuestra que la incorporación de interceptos por mapa permite modelar formalmente la asimetría táctica intrínseca de los Esports, un factor recurrentemente omitido por modelos deterministas clásicos; y segundo, proporciona un marco metodológico honesto que cuantifica de manera explícita la incertidumbre en escenarios de alta volatilidad competitiva.
+Los resultados obtenidos ofrecen respuestas directas a la pregunta de investigación y nos permiten conversar críticamente con los estudios previos. En primer lugar, la supremacía de la consistencia técnica general (Rating 2.0, con $\beta_1 = 4.95$) y el desgaste constante al rival mediante el daño (ADR, con $\beta_3 = 0.095$) coincide plenamente con los trabajos de Broms y Nordansjö \cite{csgodataset2020} y Makarov et al. \cite{makarov2017predicting}, quienes mediante algoritmos de Machine Learning tradicionales ya identificaban el inmenso peso del poder de fuego. No obstante, nuestro enfoque bayesiano jerárquico matiza de forma contundente la relevancia que la literatura de divulgación popular suele atribuir al \textit{Impacto Táctico} \cite{goldin2021bayesian}. Al revelar un coeficiente marginal altamente incierto ($\beta_2 = 0.36$, cuyo intervalo HDI cruza ampliamente el cero), el modelo demuestra que las jugadas espectaculares pero aisladas (como bajas iniciales o ganar rondas milagrosas en desventaja) no tienen un impacto lineal y garantizado sobre la victoria si no se acompañan de una consistencia técnica general de todo el equipo durante todo el mapa.
 
-A nivel técnico, se concluye que el \textbf{Rating 2.0} es la métrica de desempeño más dominante e influyente para predecir el éxito competitivo. Sin embargo, el estudio aporta un hallazgo contraintuitivo fundamental al descubrir un efecto de supresión negativo en el coeficiente del \textbf{KAST} ($\beta_4 = -5.47$): cuando se aíslan los factores de efectividad directa (Rating y daño), la mera consistencia orientada a la supervivencia pasiva de los jugadores perjudica la obtención de la victoria en la élite. Asimismo, los interceptos aleatorios confirmaron asimetrías estructurales marcadas en mapas históricos como \textit{Mirage} (favorable al Equipo 1) y \textit{Overpass} (desfavorable).
+En segundo lugar, el fuerte efecto de supresión hallado en la variable \textit{KAST} ($\beta_4 = -5.47$) representa un aporte contraintuitivo muy valioso para la analítica deportiva. Mientras que en los círculos de analistas tradicionales se premia un KAST elevado como el máximo indicador de trabajo en equipo y soporte, el modelo bayesiano desvela un matiz estratégico crítico: priorizar la supervivencia pasiva de los jugadores para conservar recursos económicos (acción conocida como \textit{"saving"}) sin aportar daño activo o bajas efectivas, en realidad condena al equipo al fracaso al ceder el control espacial del mapa al rival. Este hallazgo empírico proporciona a los entrenadores profesionales una base científica para desincentivar estilos de juego pasivos que inflan métricas individuales a expensas de la probabilidad colectiva de éxito.
 
-A pesar del rigor metodológico implementado, se reconocen limitaciones inherentes en esta investigación:
-\begin{itemize}
-    \item \textbf{Granularidad Temporal:} Los datos de rendimiento de los jugadores corresponden a promedios generales acumulados y no a estadísticas tomadas mapa por mapa de manera sincrónica.
-    \item \textbf{Variables Intangibles:} El modelo se alimenta únicamente de métricas mecánicas registradas en el servidor, omitiendo dimensiones cruciales como la cohesión comunicativa, la gestión psicológica de los jugadores ante la presión o el impacto de las pausas tácticas de los entrenadores.
-    \item \textbf{Soporte Muestral por Grupo:} Mapas de reciente incorporación o menor frecuencia de juego en el periodo analizado (como \textit{Vertigo}) cuentan con menor representatividad empírica, aunque este efecto fue mitigado estadísticamente mediante el mecanismo de contracción bayesiana (\textit{shrinkage}) propio de la estructura jerárquica.
-\end{itemize}
+Por último, la validación de la asimetría competitiva mediante los interceptos por mapa ($\alpha_j$) confirma la necesidad de usar modelamientos jerárquicos como sugerían Gelman et al. \cite{gelman2013bayesian}. Ignorar el mapa disputado introduce un sesgo inaceptable en el análisis, dado que escenarios como \textit{Mirage} conceden una ventaja de partida significativa ($p_{\text{base}} = 0.536$ para el Equipo 1) debido a su arquitectura física y bando inicial preferente en el servidor.
 
-Como líneas de trabajo futuro, se propone extender el modelo implementando \textbf{pendientes aleatorias} ($\beta_{kj}$), permitiendo que la influencia de los predictores técnicos varíe dinámicamente según el mapa disputado. Asimismo, se plantea el desarrollo de validaciones cruzadas secuenciales de series de tiempo para evaluar la estabilidad temporal de los coeficientes, y explorar la modelación mediante redes de regresión logística no paramétricas (como BART Bayesiano) para capturar posibles interacciones no lineales complejas entre las variables predictoras.
+\section{LIMITACIONES Y SENSIBILIDAD: LO QUE LAS MATEMÁTICAS NO PUEDEN VER}
+
+Siguiendo los principios del pensamiento crítico, la validez de cualquier conclusión científica está delimitada por el alcance de sus datos y las decisiones de diseño adoptadas. En este sentido, se deben reconocer de manera transparente las limitaciones y la sensibilidad de este estudio.
+
+En primer lugar, respecto a los datos y su generalización, la muestra abarca partidas profesionales disputadas entre 2016 y 2020. Aunque metodológicamente es un bloque de datos gigante y muy robusto, no se puede ignorar que el Counter-Strike evolucionó. Con el lanzamiento de \textit{Counter-Strike 2 (CS2)}, el motor de física cambió y, más importante aún, el formato competitivo se redujo de 15 rondas por bando (MR15) a 12 rondas (MR12). Por lo tanto, extrapolar estas conclusiones directamente al panorama actual de CS2 requiere cautela, ya que la rapidez de las partidas actuales podría haber alterado el peso de las variables de consistencia. Asimismo, al tratarse de datos observacionales y secundarios, describimos correlaciones empíricas sumamente sólidas, pero no causalidades físicas estrictas.
+
+En segundo lugar, identificamos una limitación en la medición y variables omitidas. Las métricas de rendimiento representan promedios históricos acumulados por los jugadores y no registros tomados mapa por mapa de manera sincronizada en vivo. Adicionalmente, el modelo es ciego ante factores intangibles y psicológicos de enorme peso: la calidad de la comunicación interna, el impacto motivacional de las pausas tácticas del entrenador o la fatiga mental de los jugadores bajo la presión de estar jugando en un escenario presencial con miles de fanáticos gritando en contra.
+
+En tercer lugar, en cuanto al análisis de sensibilidad, la decisión de excluir la relación de bajas y muertes (KDR) por su extrema colinealidad con el Rating 2.0 protegió al modelo de problemas de estabilidad matemática, aunque esto implica que el efecto puro de la efectividad de fuego es absorbido de manera indirecta por el Rating 2.0. Por otra parte, la limpieza de datos (estandarización de nombres de equipos) evitó un severo sesgo de selección: de haberse mantenido la coincidencia exacta original, la muestra se habría reducido a apenas 218 observaciones, comprometiendo gravemente la robustez estadística y la representatividad de la muestra final de 5,745 mapas.
+
+Finalmente, una variable omitida que habría enriquecido drásticamente este estudio es la economía del juego. Counter-Strike es, en esencia, un juego de recursos económicos. El uso de \textbf{telemetría ronda por ronda} en tiempo real para capturar la gestión del dinero y del equipamiento táctico es, sin duda, la variable omitida más influyente y representa la ruta ideal para futuros trabajos de investigación.
+
+\section{CONCLUSIONES: DETRÁS DE LAS PANTALLAS Y LAS ESTADÍSTICAS}
+
+Al llegar al final de este recorrido matemático por el servidor de Counter-Strike, resulta valioso volver a la imagen con la que inició este artículo: la gran final competitiva. Detrás de los momentos de genialidad individual que capturan la atención de los espectadores y se vuelven virales en redes sociales, este estudio demuestra que la victoria real en el nivel profesional se construye sobre una base silenciosa de consistencia técnica. El rendimiento general del equipo (Rating 2.0) y la capacidad de desgastar físicamente al oponente mediante el daño constante (ADR) son los verdaderos pilares del triunfo en el servidor.
+
+Asimismo, el modelo nos deja una lección de pensamiento crítico fundamental para aficionados y entrenadores: el peligro de las métricas engañosas. Aquellos estilos de juego excesivamente pasivos orientados a inflar estadísticas individuales de supervivencia (el KAST) sin aportar daño activo, en realidad perjudican al equipo al ceder el control espacial del mapa al rival. 
+
+La mayor contribución de este primer proyecto de investigación radica en la propuesta de una Regresión Logística Bayesiana Jerárquica que, en lugar de vender certezas falsas o prometer un futuro determinista imposible mediante algoritmos opacos de Machine Learning, asume con madurez la asimetría táctica de los mapas como un intercepto aleatorio y cuantifica con total transparencia la incertidumbre de sus predicciones (expresada en un Brier Score de 0.2404 y un Expected Calibration Error de apenas 1.2\%). Esto establece un estándar ético y de honestidad estadística muy valioso para analistas y entusiastas de los deportes electrónicos. 
+
+Como paso siguiente en esta emocionante aventura de datos, se invita a explorar la telemetría económica en tiempo real ronda por ronda, buscando siempre descifrar, con mayor humildad científica, la hermosa e impredecible incertidumbre del juego competitivo.
 
 \bibliographystyle{apalike}
 \bibliography{bibliografia}
