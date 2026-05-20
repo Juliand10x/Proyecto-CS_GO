@@ -342,32 +342,33 @@
         <h2>Ingeniería de Datos y el Rigor del EDA</h2>
         
         <div class="grid-2">
-          <div class="glass-card">
-            <h4 style="color: #3b82f6; margin-bottom: 12px;"><i class="fa-solid fa-code-merge"></i> El Hito del Merge de Datos</h4>
-            <p style="margin-bottom: 15px; font-size: 0.85em !important;">
-              Nombres inconsistentes en HLTV (Mayúsculas en rendimiento `'ASTRALIS'` vs. resultados `'Astralis'`).
+          <div class="glass-card" style="font-size: 0.85em !important; padding: 20px !important;">
+            <h4 style="color: #3b82f6; margin-bottom: 12px;"><i class="fa-solid fa-code-merge"></i> Algoritmo del Merge de Datos</h4>
+            <p style="margin-bottom: 12px; font-size: 0.8em !important; line-height: 1.4;">
+              Fusión de `csgo_games.csv` (partidas) y `csgo_players.csv` (rendimiento individual) resolviendo desajustes horarios de scrapers y nomenclaturas.
             </p>
-            <div style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 8px; border-left: 3px solid var(--color-primary); font-size: 0.85em !important;">
-              <strong>Cruce Estricto Inicial:</strong> \(N = 218\) mapas.<br>
-              <strong>Limpieza Case-Insensitive + 3 días:</strong> <span class="adr-color">\(N = 5,745\) mapas</span> en <span class="rating-color">3,341 partidas</span>. <strong>(¡Muestra 26x mayor!)</strong>
+            <div style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 8px; border-left: 3px solid var(--color-primary); font-size: 0.8em !important; line-height: 1.4;">
+              <strong>Limpieza:</strong> <code>str.upper()</code> + remoción de espacios en nombres.<br>
+              <strong>Cruce Temporal:</strong> Ventana deslizante de <strong>\(\pm\) 3 días (\(\pm\) 72h)</strong> para solventar offsets horarias.<br>
+              <strong>Crecimiento:</strong> De \(N = 218\) mapas a <span class="adr-color">\(N = 5,745\) mapas</span> en <span class="rating-color">3,341 partidas</span> <strong>(¡Muestra 26x mayor!)</strong>.
             </div>
           </div>
           
-          <div class="glass-card">
+          <div class="glass-card" style="font-size: 0.85em !important; padding: 20px !important;">
             <h4 style="color: #3b82f6; margin-bottom: 12px;"><i class="fa-solid fa-chart-line"></i> Hallazgos Clave del EDA</h4>
-            <ul class="premium-list" style="font-size: 0.85em !important;">
-              <li><strong>Paridad Extrema:</strong> Distribuciones de talento de ganadores y perdedores se superponen casi al 100%.</li>
-              <li class="warn"><strong>Control de Colinealidad:</strong> Exclusión de la variable bajas/muertes (KDR) por colinealidad del <strong>97%</strong> con el Rating 2.0.</li>
+            <ul class="premium-list" style="font-size: 0.8em !important; line-height: 1.4;">
+              <li><strong>Paridad Absoluta:</strong> Superposición casi total (100%) en distribuciones de ganadores y perdedores individuales, exigiendo estadística inferencial bayesiana.</li>
+              <li class="warn"><strong>Control de Multicolinealidad:</strong> Exclusión de KDR (bajas/muertes) por colinealidad matemática del <strong>97%</strong> con el Rating 2.0.</li>
             </ul>
           </div>
         </div>
 
         <!-- Pregunta Técnica -->
         <div class="qa-box">
-          <button class="qa-btn" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa Técnica: Sesgo de Selección</button>
+          <button class="qa-btn" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa Técnica: Rigor del Merge y Sesgo de Selección</button>
           <div class="qa-content">
-            <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Pregunta: ¿Cómo afectó la inconsistencia de nombres en la representatividad de la muestra?</p>
-            <p><strong>Respuesta:</strong> Si hubiéramos mantenido el cruce inicial, habríamos introducido un severo sesgo de selección analizando solo a los equipos cuyos nombres coincidían por puro azar. Al unificar texto case-insensitive y aplicar una ventana temporal, eliminamos este sesgo y aumentamos la representatividad estadística cubriendo todo el circuito competitivo de élite internacional con un tamaño de muestra masivo.</p>
+            <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Pregunta: ¿Cómo se realizó técnicamente la fusión de bases de datos y cómo afectó al sesgo de selección?</p>
+            <p><strong>Respuesta:</strong> Los scrapers capturaron la fecha de los juegos en diferentes husos horarios y formatos (fechas de día vs hora de servidor). Un cruce rígido inicial arrojaba solo 218 observaciones. Diseñamos un script de limpieza en Pandas unificando cadenas en mayúsculas y aplicando una ventana deslizante de coincidencia de \(\pm\) 3 días. Esto evitó un grave sesgo de selección (que habría analizado solo equipos populares con nombres sencillos y sincronizados), rescatando 5,745 mapas altamente representativos del circuito mundial.</p>
           </div>
         </div>
       </section>
@@ -419,24 +420,42 @@
         <div class="flow-badge">5. Definición de la Likelihood e Imposibilidad de la Posterior</div>
         <h2>El Modelo Jerárquico Bayesiano</h2>
         
-        <div class="glass-card">
-          <h4 style="color: #93c5fd; margin-bottom: 12px;"><i class="fa-solid fa-calculator"></i> Formulación Matemática</h4>
-          <div class="math-block" style="font-size: 0.85em !important; padding: 10px !important; margin: 5px 0 !important;">
-            $$y_i \sim \text{Bernoulli}(p_i)$$
-            $$\text{logit}(p_i) = \alpha_{map[i]} + \beta_1 \cdot \text{Rating}_i + \beta_2 \cdot \text{Impacto}_i + \beta_3 \cdot \text{ADR}_i + \beta_4 \cdot \text{KAST}_i$$
-            $$\alpha_j \sim \text{Normal}(\mu_\alpha, \sigma_\alpha^2) \quad \text{para } j = 1, \dots, 9 \text{ mapas (Partial Pooling)}$$
+        <div class="grid-2">
+          <div class="glass-card" style="font-size: 0.85em !important; padding: 20px !important;">
+            <h4 style="color: #93c5fd; margin-bottom: 12px;"><i class="fa-solid fa-calculator"></i> Formulación Matemática</h4>
+            <div class="math-block" style="font-size: 0.65em !important; padding: 8px !important; margin: 5px 0 !important;">
+              $$y_i \sim \text{Bernoulli}(p_i)$$
+              $$\text{logit}(p_i) = \alpha_{map[i]} + \sum \beta_k \cdot \text{diff\_}X_{ki}$$
+              $$\alpha_j \sim \text{Normal}(\mu_\alpha, \sigma_\alpha^2) \quad (j = 1,\dots, 9)$$
+            </div>
+            <p style="font-size: 0.7em !important; line-height: 1.4; margin-top: 10px;">
+              <strong>No-Conjugación:</strong> El enlace no lineal logit rompe la conjugación Bernoulli-Normal. No hay forma cerrada analítica para la posterior.
+            </p>
           </div>
-          <p style="font-size: 0.75em !important; line-height: 1.4; margin-top: 10px; text-align: center;">
-            <strong>Imposibilidad Analítica:</strong> Al usar la función de enlace logística no lineal, se rompe la conjugación matemática entre la verosimilitud de Bernoulli y los priors normales. No existe una solución en forma cerrada para la posterior; es obligatorio aproximarla numéricamente.
-          </p>
+          
+          <div class="glass-card" style="font-size: 0.85em !important; padding: 20px !important;">
+            <h4 style="color: #10b981; margin-bottom: 12px;"><i class="fa-solid fa-code"></i> Arquitectura en PyMC 5.x</h4>
+            <pre style="font-size: 0.58em !important; margin: 0; background: rgba(15, 23, 42, 0.6); padding: 8px; border-radius: 8px; color: #cbd5e1; font-family: monospace; line-height: 1.35;"><code class="language-python">with pm.Model() as model:
+  # Hiperpriors e Interceptos
+  mu_a = pm.Normal('mu_a', 0, 5)
+  sigma_a = pm.HalfNormal('sigma_a', 2)
+  alpha = pm.Normal('alpha', mu_a, sigma_a, shape=9)
+  
+  # Slopes y Enlace Bernoulli Logit
+  logit_p = alpha[map_idx] + pm.math.dot(X_diff, betas)
+  y = pm.Bernoulli('y', logit_p=logit_p, observed=team1_won)
+  
+  # Muestreo NUTS (4 cadenas, 2000 draws/tune)
+  idata = pm.sample(draws=2000, tune=2000, target_accept=0.95)</code></pre>
+          </div>
         </div>
 
         <!-- Pregunta Técnica -->
         <div class="qa-box">
-          <button class="qa-btn" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa Técnica: ¿Pooled, Unpooled o Jerárquico?</button>
+          <button class="qa-btn" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa Técnica: Muestreo y Estructura Jerárquica</button>
           <div class="qa-content">
-            <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Pregunta: ¿Cómo justifican matemáticamente la estructura jerárquica frente a modelos agrupados o desagrupados?</p>
-            <p><strong>Respuesta:</strong> Es el balance sesgo-varianza. Un modelo agrupado (pooled) asume erróneamente que todos los mapas son idénticos tácticamente, introduciendo sesgos. Un modelo desagrupado (unpooled) estima mapas de forma aislada, generando altísima varianza en mapas con pocas observaciones. El modelo jerárquico permite agrupación parcial (partial pooling): los mapas comparten información a través de hiperpriors globales, reduciendo la varianza gracias al encogimiento bayesiano (shrinkage) de interceptos extremos hacia la media global.</p>
+            <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Pregunta: ¿Cómo se implementó el modelo jerárquico y cómo se garantizó la estabilidad del muestreo?</p>
+            <p><strong>Respuesta:</strong> Construimos el modelo en PyMC 5.x codificando los interceptos por mapa como un vector indexado de longitud 9 (agrupación parcial). Para resolver la imposibilidad analítica del posterior, corrimos 4 cadenas paralelas del sampler MCMC NUTS (No-U-Turn Sampler), parametrizando 2,000 pasos de tuneo y 2,000 draws por cadena (8,000 muestras totales). Fijamos el <code>target_accept</code> en 0.95 para evitar transiciones divergentes en la compleja geometría del modelo, logrando una convergencia perfecta con 0 divergencias y \(\hat{R} = 1.00\).</p>
           </div>
         </div>
       </section>

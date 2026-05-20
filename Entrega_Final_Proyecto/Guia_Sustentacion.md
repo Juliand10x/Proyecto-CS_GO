@@ -36,19 +36,29 @@ Esta guía está estructurada **siguiendo exactamente el "Esquema General del Tr
 ### **Diapositiva 3: Análisis de Datos Secundarios, EDA y Problemas con los Datos [Minuto 1:30 - 2:30]**
 
 *   **Apoyo Visual Recomendado:** 
-    *   Un gráfico simple que muestre la superposición extrema de rendimiento entre ganadores y perdedores (EDA).
-    *   Un esquema visual del hito de ingeniería: **Cruce Estricto Inicial ($N = 218$) $\rightarrow$ Limpieza Case-insensitive y Ventana de 3 Días $\rightarrow$ Muestra Final ($N = 5,745$ mapas, 3,341 partidas)**.
+    *   Gráfico de superposición del EDA de ganadores/perdedores.
+    *   Diagrama de flujo del merge:
+        *   `csgo_games.csv` (Metadatos de partidas) + `csgo_players.csv` (Rendimiento individual).
+        *   *Problema:* Discordancia en nombres (`'ASTRALIS'` vs `'Astralis'`) y desajuste en timestamps de scrapers.
+        *   *Algoritmo:* Normalización `str.upper()` + Mapeo de sinónimos + **Ventana temporal de coincidencia de 3 días ($\pm$ 72h)**.
+        *   *Resultado:* Aumento de muestra de $N = 218$ a **$N = 5,745$ mapas** ($N_{partidas} = 3,341$). (¡Muestra 26x mayor!).
 *   **Guión Verbal (Qué decir):**
-    > *"Nuestros datos secundarios provienen de HLTV entre 2016 y 2020. Al intentar unir las tablas de rendimiento individual de los jugadores con los resultados generales de las partidas, enfrentamos un problema de calidad crítico: los nombres de los equipos diferían en mayúsculas y minúsculas. Un cruce estricto reducía la muestra útil a apenas 218 mapas, comprometiendo la estabilidad estadística.*
+    > *"Para sustentar nuestro modelo, extrajimos datos secundarios de HLTV entre 2016 y 2020 a través de dos bases de datos masivas: `csgo_games.csv` para los metadatos de las partidas y `csgo_players.csv` para las estadísticas individuales de cada jugador. Al intentar fusionarlas, nos topamos con un grave problema de calidad: inconsistencia de nombres en los equipos —por ejemplo, mayúsculas y minúsculas mezcladas como 'ASTRALIS' y 'Astralis'— y ligeras diferencias de fecha y hora debido a las zonas horarias de los scrapers.
     >
-    > *Diseñamos un proceso de limpieza para normalizar el texto a mayúsculas combinado con una ventana de coincidencia temporal de 3 días. Gracias a esto, nuestra muestra útil creció 26 veces hasta consolidar **5,745 observaciones de mapas**. *
+    > Un cruce estricto convencional destruía el 96.2% de nuestra información, dejándonos con una muestra minúscula de apenas 218 mapas, lo que creaba un severo sesgo de selección. 
     >
-    > *Durante el EDA, detectamos una colinealidad del 97% entre el ratio de bajas/muertes (KDR) y el Rating 2.0. Con rigor metodológico, decidimos excluir el KDR para evitar redundancia e inestabilidad en los cálculos, preservando el Rating 2.0 como métrica reina."*
+    > Para solucionarlo, diseñamos un pipeline de ingeniería de datos en Python: primero, convertimos todos los nombres a mayúsculas, removimos espacios y estandarizamos sinónimos tácticos. Segundo, implementamos una lógica de **cruce por ventana temporal deslizante**: emparejamos las estadísticas agregadas de los jugadores con su respectiva partida si la fecha de juego coincidía dentro de una ventana de tolerancia de **$\pm$ 3 días**.
+    >
+    > Este algoritmo de unión flexible rescató la base de datos, expandiéndola a **5,745 observaciones de mapas en 3,341 partidas**. En el EDA subsiguiente, calculamos los diferenciales promedio por mapa (Equipo 1 menos Equipo 2) de cada estadística y excluimos la variable de bajas/muertes (KDR) por mostrar una colinealidad del 97% con el Rating 2.0, garantizando la independencia lineal de nuestros regresores."*
 
 #### **💬 Posible Pregunta Técnica de esta sección:**
-*   **Pregunta del Profesor:** *¿Cómo afectó el problema de inconsistencia de nombres en la representatividad y el sesgo de la muestra?*
+*   **Pregunta del Profesor:** *¿Cómo se realizó técnicamente la limpieza y consolidación de la base de datos, y cómo afectaron las inconsistencias y la ventana temporal al sesgo de selección?*
 *   **Respuesta de Defensa:** 
-    > *"Profesor, de habernos quedado con la muestra inicial de 218 observaciones generada por el cruce estricto, habríamos sufrido de un severo sesgo de selección, limitando el análisis únicamente a los pocos equipos cuyos nombres coincidían perfectamente por azar en ambas tablas. Al aplicar la normalización de texto y la ventana de 3 días, garantizamos que la muestra definitiva de 5,745 mapas sea representativa de todo el circuito competitivo de élite internacional, eliminando el sesgo y aumentando drásticamente la robustez de las estimaciones."*
+    > *"Profesor, la fusión original fallaba porque `csgo_games.csv` registraba las fechas a nivel de día de la partida y `csgo_players.csv` registraba la hora exacta del servidor, la cual a menudo difería por desfases de huso horario de los raspadores.
+    >
+    > Si hubiéramos conservado el cruce rígido inicial de 218 filas, habríamos incurrido en un sesgo de selección masivo: solo habríamos analizado partidos de equipos populares con nombres simples y horarios perfectamente sincronizados. 
+    >
+    > Al aplicar la unificación case-insensitive, eliminar espacios vacíos y construir un join condicional con una ventana temporal de $\pm$ 3 días en Pandas, logramos conservar 5,745 mapas. Esto asegura que la muestra representa fielmente todo el espectro competitivo de la escena internacional, reduciendo significativamente el error de estimación de nuestro posterior."*
 
 ---
 
@@ -58,40 +68,48 @@ Esta guía está estructurada **siguiendo exactamente el "Esquema General del Tr
     *   Ecuaciones de los priors en LaTeX limpio: $\beta_k \sim \text{Normal}(0, 5^2)$, $\mu_\alpha \sim \text{Normal}(0, 5^2)$, $\sigma_\alpha \sim \text{HalfNormal}(2)$.
     *   Nota conceptual: *"Los expertos definen el problema y el rango de los priors, pero la verosimilitud de la gran muestra domina la estimación final sin sesgar la verosimilitud (Likelihood)."*
 *   **Guión Verbal (Qué decir):**
-    > *"En la estadística bayesiana, la definición de las distribuciones previas o priors es crucial. Consultando la teoría y la opinión de expertos del juego, seleccionamos las cuatro variables de desempeño explicativas fundamentales (Rating, Daño, Impacto y KAST).*
+    > *"En la estadística bayesiana, la definición de las distribuciones previas o priors es crucial. Consultando la teoría y la opinión de expertos del juego, seleccionamos las cuatro variables de desempeño explicativas fundamentales (Rating, Daño, Impacto y KAST).
     >
-    > *Para no imponer sesgos subjetivos en las estimaciones, definimos priors de filosofía débilmente informativa: distribuciones normales centradas en cero con desviación estándar de 5 para los coeficientes de desempeño y para la media global de los mapas, y una distribución Half-Normal para la desviación estándar entre escenarios. Esto actúa como un regularizador matemático que estabiliza el modelo, pero permite que la enorme masa de datos del servidor domine la estimación de la posterior."*
+    > Para no imponer sesgos subjetivos en las estimaciones, definimos priors de filosofía débilmente informativa: distribuciones normales centradas en cero con desviación estándar de 5 para los coeficientes de desempeño y para la media global de los mapas, y una distribución Half-Normal para la desviación estándar entre escenarios. Esto actúa como un regularizador matemático que estabiliza el modelo, pero permite que la enorme masa de datos del servidor domine la estimación de la posterior."*
 
 #### **💬 Posible Pregunta Técnica de esta sección:**
 *   **Pregunta del Profesor:** *¿Por qué priors normales débilmente informativas ($Normal(0, 5^2)$) en lugar de priors planas o uniformes no informativas?*
 *   **Respuesta de Defensa:**
-    > *"Profesor, los priors planos (como los uniformes de $-\infty$ a $+\infty$) son computacionalmente peligrosos en los modelos jerárquicos bayesianos. Permiten al algoritmo MCMC explorar regiones del espacio de parámetros con densidad de probabilidad absurda, lo que produce fallos de muestreo conocidos como transiciones divergentes.*
+    > *"Profesor, los priors planos (como los uniformes de $-\infty$ a $+\infty$) son computacionalmente peligrosos en los modelos jerárquicos bayesianos. Permiten al algoritmo MCMC explorar regiones del espacio de parámetros con densidad de probabilidad absurda, lo que produce fallos de muestreo conocidos como transiciones divergentes.
     >
-    > *Un prior débilmente informativo como el $Normal(0, 25)$ actúa como un regulador suave: asume que es sumamente improbable encontrar un efecto de desempeño gigantesco en la escala logit. Dado que nuestra muestra definitiva cuenta con 5,745 mapas, la verosimilitud de los datos domina por completo el posterior, pero el prior estabiliza el sampler MCMC, asegurando la convergencia computacional."*
+    > Un prior débilmente informativo como el $Normal(0, 25)$ actúa como un regulador suave: asume que es sumamente improbable encontrar un efecto de desempeño gigantesco en la escala logit. Dado que nuestra muestra definitiva cuenta con 5,745 mapas, la verosimilitud de los datos domina por completo el posterior, pero el prior estabiliza el sampler MCMC, asegurando la convergencia computacional."*
 
 ---
 
 ### **Diapositiva 5: Definición de la Likelihood e Imposibilidad de la Posterior [Minuto 3:15 - 4:15]**
 
 *   **Apoyo Visual Recomendado:**
-    *   Fórmula del modelo jerárquico en LaTeX:
-        *   Likelihood: $y_i \sim \text{Bernoulli}(p_i)$
-        *   Logit Link: $\text{logit}(p_i) = \alpha_{map[i]} + \sum \beta_k X_{ki}$
-        *   Jerarquía (Mapas): $\alpha_j \sim \text{Normal}(\mu_\alpha, \sigma_\alpha^2)$
-    *   Texto destacado: *"La no-conjugación matemática por la función logística rompe la solución analítica, obligando a aproximar la posterior."*
+    *   Fórmulas matemáticas en LaTeX:
+        *   Verosimilitud (Likelihood): $y_i \sim \text{Bernoulli}(p_i)$
+        *   Enlace Logístico: $\text{logit}(p_i) = \alpha_{map[i]} + \beta_1 \cdot \text{diff\_rating}_i + \beta_2 \cdot \text{diff\_impact}_i + \beta_3 \cdot \text{diff\_adr}_i + \beta_4 \cdot \text{diff\_kast}_i$
+        *   Interceptos Jerárquicos: $\alpha_j \sim \text{Normal}(\mu_\alpha, \sigma_\alpha^2) \quad (j = 1,\dots, 9 \text{ mapas})$
+    *   Esquema de código PyMC (para mostrar rigor de programación):
+        ```python
+        # pm.Model() en PyMC 5.x
+        # Interceptos por mapa (Partial Pooling)
+        alpha = pm.Normal('alpha', mu=mu_alpha, sigma=sigma_alpha, shape=9)
+        # Sampler: pm.sample(draws=2000, tune=2000, chains=4, target_accept=0.95)
+        ```
 *   **Guión Verbal (Qué decir):**
-    > *"Modelamos la verosimilitud de la victoria mediante una distribución de Bernoulli conectada a través de una función de enlace logit inversa, que curva la combinación lineal de los predictores en una 'S', limitando las probabilidades estrictamente entre 0% y 100%.*
+    > *"Nuestra verosimilitud o Likelihood sigue una distribución de Bernoulli, idónea para la variable binaria 'Victoria o Derrota'. Conectamos esta probabilidad con las variables mediante una función de enlace logit inversa para curvar la combinación lineal linealmente y restringirla estrictamente entre 0 y 1. 
     >
-    > *Incorporamos la asimetría estratégica de los mapas mediante interceptos aleatorios $\alpha_j$ por cada escenario. Debido a la introducción de la función logística no lineal, se rompe la conjugación matemática entre la verosimilitud Bernoulli y los priors normales. Esto hace que sea analíticamente imposible calcular la distribución posterior de forma directa a través de integraciones clásicas, obligándonos a utilizar métodos de simulación numérica para aproximar la posterior."*
+    > La asimetría base de los mapas la modelamos a través de interceptos aleatorios jerárquicos $\alpha_j$. La introducción de la función logística no lineal destruye la conjugación matemática entre nuestra verosimilitud de Bernoulli y los priors normales. Esto significa que la integral del denominador de la regla de Bayes no tiene una solución en forma cerrada; es analíticamente imposible de calcular.
+    >
+    > Para solucionarlo, construimos el modelo en Python usando **PyMC 5.x**, estructurando el modelo jerárquico con indexación de mapas para aplicar 'partial pooling'. Estimamos la posterior mediante simulaciones avanzadas con el muestreador **MCMC NUTS (No-U-Turn Sampler)**, configurando **4 cadenas paralelas**, con **2,000 pasos de tuneo (calentamiento)** y **2,000 muestras útiles** por cadena, consolidando un total de **8,000 muestras de la posterior** y configurando un `target_accept` alto de 0.95 para garantizar una estabilidad matemática perfecta."*
 
 #### **💬 Posible Pregunta Técnica de esta sección:**
-*   **Pregunta del Profesor:** *¿Cómo justifica matemáticamente la estructura jerárquica frente a una regresión agrupada (Pooled) o desagrupada (Unpooled)?*
+*   **Pregunta del Profesor:** *¿Cómo estructuró técnicamente el modelo en código y cómo parametrizó el muestreador MCMC para evitar sesgos numéricos e inestabilidades?*
 *   **Respuesta de Defensa:**
-    > *"La estructura jerárquica se justifica por el balance sesgo-varianza mediante la agrupación parcial o 'partial pooling'. Un modelo agrupado (pooled) ignoraría la asimetría de los mapas, asumiendo erróneamente que todos los mapas tienen la misma favorabilidad base, lo que introduce sesgos predictivos.*
+    > *"Profesor, el modelo se programó en PyMC declarando un bloque contextual `pm.Model()`. Mapeamos los 9 escenarios competitivos a un vector entero de índices (`map_idx` de 0 a 8) para que actúe como índice de asignación de los interceptos aleatorios.
     >
-    > *Un modelo desagrupado (unpooled) estimaría los interceptos de forma aislada, lo cual generaría estimaciones con una varianza inaceptablemente alta en mapas con pocas observaciones históricas.*
+    > Para el muestreo, parametrizamos el algoritmo NUTS (No-U-Turn Sampler), que es una variante avanzada del MCMC Hamiltoniano que utiliza la geometría del gradiente de la posterior para explorar el espacio de forma inteligente.
     >
-    > *El modelo jerárquico permite que los mapas compartan información a través de una distribución común superior (hiperpriors $\mu_\alpha$ y $\sigma_\alpha$), encogiendo (*shrinkage*) los interceptos extremos hacia la media global cuando hay poca información. Además, la comparación de modelos mediante el criterio WAIC demostró estadísticamente la inmensa superioridad del enfoque jerárquico por más de 101 unidades predictivas logarítmicas."*
+    > Estipulamos 2,000 pasos de `tune` por cadena para permitir que el sampler auto-calibrara su matriz de masa y el tamaño de paso óptimo, y 2,000 `draws` por cadena para recopilar las muestras de la posterior. Al ejecutar 4 cadenas independientes obtuvimos 8,000 estimaciones independientes. Elevamos el parámetro `target_accept` a 0.95 para forzar al sampler a tomar pasos más finos y evitar transiciones divergentes debido a la geometría jerárquica, resultando en 0 divergencias."*
 
 ---
 
