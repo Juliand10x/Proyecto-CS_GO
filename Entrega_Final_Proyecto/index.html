@@ -93,6 +93,13 @@
       align-items: center;
     }
 
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 15px;
+      align-items: stretch;
+    }
+
     /* Variables Colores */
     .rating-color { color: var(--color-primary) !important; font-weight: 700; }
     .adr-color { color: var(--color-success) !important; font-weight: 700; }
@@ -339,36 +346,63 @@
       <!-- ==================== DIAPOSITIVA 3 ==================== -->
       <section data-transition="slide-in fade-out">
         <div class="flow-badge">3. Datos, EDA y Problemas de Calidad</div>
-        <h2>Ingeniería de Datos y el Rigor del EDA</h2>
+        <h2>Base de Datos: Origen, Estructura e Ingeniería</h2>
         
-        <div class="grid-2">
-          <div class="glass-card" style="font-size: 0.85em !important; padding: 20px !important;">
-            <h4 style="color: #3b82f6; margin-bottom: 12px;"><i class="fa-solid fa-code-merge"></i> Algoritmo del Merge de Datos</h4>
-            <p style="margin-bottom: 12px; font-size: 0.8em !important; line-height: 1.4;">
-              Fusión de `csgo_games.csv` (partidas) y `csgo_players.csv` (rendimiento individual) resolviendo desajustes horarios de scrapers y nomenclaturas.
+        <div class="grid-3">
+          <!-- Columna 1: Origen de los Datos -->
+          <div class="glass-card" style="font-size: 0.78em !important; padding: 15px !important;">
+            <h4 style="color: #3b82f6; margin-bottom: 8px;"><i class="fa-solid fa-database"></i> 1. Origen y Fuentes</h4>
+            <p style="margin-bottom: 8px; line-height: 1.35; font-size: 0.9em !important;">
+              Extracción de registros históricos de la plataforma profesional <strong>HLTV.org</strong> (2016-2020), consolidados desde Kaggle:
             </p>
-            <div style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 8px; border-left: 3px solid var(--color-primary); font-size: 0.8em !important; line-height: 1.4;">
-              <strong>Limpieza:</strong> <code>str.upper()</code> + remoción de espacios en nombres.<br>
-              <strong>Cruce Temporal:</strong> Ventana deslizante de <strong>\(\pm\) 3 días (\(\pm\) 72h)</strong> para solventar offsets horarias.<br>
-              <strong>Crecimiento:</strong> De \(N = 218\) mapas a <span class="adr-color">\(N = 5,745\) mapas</span> en <span class="rating-color">3,341 partidas</span> <strong>(¡Muestra 26x mayor!)</strong>.
-            </div>
+            <ul class="premium-list" style="font-size: 0.85em !important; line-height: 1.3; padding-left: 0;">
+              <li><code>mateusdmachado/csgo-professional-matches</code>: Datos crudos de partidas (<code>results.csv</code>) y telemetría individual (<code>players.csv</code>).</li>
+              <li><code>griffindesroches/cs2-hltv...</code>: Contexto moderno de Esports.</li>
+            </ul>
+          </div>
+
+          <!-- Columna 2: Organización y Estructura -->
+          <div class="glass-card" style="font-size: 0.78em !important; padding: 15px !important;">
+            <h4 style="color: #3b82f6; margin-bottom: 8px;"><i class="fa-solid fa-sitemap"></i> 2. Estructura y Variables</h4>
+            <ul class="premium-list" style="font-size: 0.85em !important; line-height: 1.35; padding-left: 0;">
+              <li><strong>Fila (Observación):</strong> 1 Mapa único jugado (e.g. Mirage).</li>
+              <li><strong>Target (\(y_i \in \{0, 1\}\)):</strong> Si el Equipo 1 ganó el mapa.</li>
+              <li><strong>Predictores:</strong> Diferenciales agregados de 5 jugadores por equipo:
+                <div style="background: rgba(15, 23, 42, 0.4); padding: 5px; border-radius: 4px; font-family: monospace; font-size: 0.85em !important; text-align: center; margin: 4px 0;">
+                  \(\text{diff\_}X = \bar{X}_{T1} - \bar{X}_{T2}\)
+                </div>
+                Rating, ADR (daño), Impacto y KAST.
+              </li>
+            </ul>
           </div>
           
-          <div class="glass-card" style="font-size: 0.85em !important; padding: 20px !important;">
-            <h4 style="color: #3b82f6; margin-bottom: 12px;"><i class="fa-solid fa-chart-line"></i> Hallazgos Clave del EDA</h4>
-            <ul class="premium-list" style="font-size: 0.8em !important; line-height: 1.4;">
-              <li><strong>Paridad Absoluta:</strong> Superposición casi total (100%) en distribuciones de ganadores y perdedores individuales, exigiendo estadística inferencial bayesiana.</li>
-              <li class="warn"><strong>Control de Multicolinealidad:</strong> Exclusión de KDR (bajas/muertes) por colinealidad matemática del <strong>97%</strong> con el Rating 2.0.</li>
+          <!-- Columna 3: Ingeniería del Merge -->
+          <div class="glass-card" style="font-size: 0.78em !important; padding: 15px !important;">
+            <h4 style="color: #3b82f6; margin-bottom: 8px;"><i class="fa-solid fa-code-merge"></i> 3. Algoritmo de Merge</h4>
+            <ul class="premium-list" style="font-size: 0.85em !important; line-height: 1.35; padding-left: 0;">
+              <li><strong>Limpieza:</strong> <code>str.upper()</code> + estandarización case-insensitive de nombres.</li>
+              <li><strong>Unión Temporal:</strong> Ventana deslizante de <strong>\(\pm\) 3 días (\(\pm\) 72h)</strong> para corregir offsets de zonas horarias de scrapers.</li>
+              <li><strong>Crecimiento:</strong> De \(N = 218\) a <strong class="adr-color">5,745 mapas</strong> (3,341 partidas) <strong>(¡Muestra 26x mayor!)</strong>.</li>
             </ul>
           </div>
         </div>
 
-        <!-- Pregunta Técnica -->
-        <div class="qa-box">
-          <button class="qa-btn" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa Técnica: Rigor del Merge y Sesgo de Selección</button>
-          <div class="qa-content">
-            <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Pregunta: ¿Cómo se realizó técnicamente la fusión de bases de datos y cómo afectó al sesgo de selección?</p>
-            <p><strong>Respuesta:</strong> Los scrapers capturaron la fecha de los juegos en diferentes husos horarios y formatos (fechas de día vs hora de servidor). Un cruce rígido inicial arrojaba solo 218 observaciones. Diseñamos un script de limpieza en Pandas unificando cadenas en mayúsculas y aplicando una ventana deslizante de coincidencia de \(\pm\) 3 días. Esto evitó un grave sesgo de selección (que habría analizado solo equipos populares con nombres sencillos y sincronizados), rescatando 5,745 mapas altamente representativos del circuito mundial.</p>
+        <!-- Preguntas Técnicas Directas -->
+        <div class="qa-box" style="margin-top: 15px !important; padding-top: 10px !important; display: flex; gap: 15px; justify-content: center;">
+          <div style="flex: 1;">
+            <button class="qa-btn" style="width: 100%; justify-content: center;" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa 1: Origen y Organización</button>
+            <div class="qa-content">
+              <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Defensa 1: ¿De dónde salieron los datos y cómo están estructurados?</p>
+              <p><strong>Respuesta:</strong> Los datos se extrajeron de <strong>HLTV.org</strong>, consolidados desde Kaggle (<code>mateusdmachado/csgo-professional-matches</code>). La base está organizada a nivel de <strong>mapa jugado</strong> (fila). Contiene variables de identificación (fecha, nombres, marcador) y 16 estadísticas granulares por cada uno de los 5 jugadores por equipo. Diseñamos <strong>diferenciales</strong> simétricos de desempeño (Rating, Impacto, ADR, KAST) restando los promedios de los dos equipos (\(\bar{X}_{T1} - \bar{X}_{T2}\)). El target es binario: si el Equipo 1 ganó el mapa.</p>
+            </div>
+          </div>
+          
+          <div style="flex: 1;">
+            <button class="qa-btn" style="width: 100%; justify-content: center;" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa 2: Rigor del Merge y Sesgo</button>
+            <div class="qa-content">
+              <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Defensa 2: ¿Cómo se resolvió la pérdida de datos del merge original?</p>
+              <p><strong>Respuesta:</strong> El cruce estricto por nombres y fechas exactas destruía el 96% de los datos (quedaban 218 filas) por variaciones tipográficas y desajustes de zona horaria de los scrapers. Para resolverlo, desarrollamos un pipeline de normalización en Pandas que estandariza cadenas y realiza una unión temporal con una **ventana de tolerancia de \(\pm\) 3 días**. Esto rescató 5,745 observaciones válidas, eliminando el severo sesgo de selección que se habría producido al analizar únicamente la minúscula muestra original.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -644,8 +678,11 @@
       const content = btn.nextElementSibling;
       if (content.style.display === "block") {
         content.style.display = "none";
-        btn.innerHTML = '<i class="fa-solid fa-circle-question"></i> Defensa Técnica: ' + btn.textContent.split(': ')[1];
+        btn.innerHTML = btn.getAttribute('data-original-html');
       } else {
+        if (!btn.getAttribute('data-original-html')) {
+          btn.setAttribute('data-original-html', btn.innerHTML);
+        }
         content.style.display = "block";
         btn.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Ocultar Respuesta';
       }

@@ -33,32 +33,45 @@ Esta guía está estructurada **siguiendo exactamente el "Esquema General del Tr
 
 ---
 
-### **Diapositiva 3: Análisis de Datos Secundarios, EDA y Problemas con los Datos [Minuto 1:30 - 2:30]**
+### **Diapositiva 3: Base de Datos: Origen, Estructura e Ingeniería [Minuto 1:30 - 2:30]**
 
 *   **Apoyo Visual Recomendado:** 
-    *   Gráfico de superposición del EDA de ganadores/perdedores.
-    *   Diagrama de flujo del merge:
-        *   `csgo_games.csv` (Metadatos de partidas) + `csgo_players.csv` (Rendimiento individual).
-        *   *Problema:* Discordancia en nombres (`'ASTRALIS'` vs `'Astralis'`) y desajuste en timestamps de scrapers.
-        *   *Algoritmo:* Normalización `str.upper()` + Mapeo de sinónimos + **Ventana temporal de coincidencia de 3 días ($\pm$ 72h)**.
-        *   *Resultado:* Aumento de muestra de $N = 218$ a **$N = 5,745$ mapas** ($N_{partidas} = 3,341$). (¡Muestra 26x mayor!).
+    *   Un diseño elegante de tres columnas:
+        *   **Columna 1: Origen y Fuentes:** Logotipos de **HLTV.org** y **Kaggle**. Detalle de los datasets públicos de Mateus Machado (`csgo-professional-matches` con datos 2016-2020) y Griffin Desroches (`cs2-hltv...` de soporte).
+        *   **Columna 2: Estructura y Organización:** Esquema que muestra la composición de una fila (1 Mapa disputado), el target binario $y_i \in \{0, 1\}$ (victoria/derrota del Equipo 1), las métricas individuales por jugador y la ecuación de agregación por differentials $\text{diff\_}X = \bar{X}_{T1} - \bar{X}_{T2}$.
+        *   **Columna 3: Pipeline de Merge:** Diagrama que muestra el merge case-insensitive (`str.upper()`) y la ventana de unión temporal de $\pm$ 3 días. Resultados del merge: de 218 filas a 5,745 mapas.
 *   **Guión Verbal (Qué decir):**
-    > *"Para sustentar nuestro modelo, extrajimos datos secundarios de HLTV entre 2016 y 2020 a través de dos bases de datos masivas: `csgo_games.csv` para los metadatos de las partidas y `csgo_players.csv` para las estadísticas individuales de cada jugador. Al intentar fusionarlas, nos topamos con un grave problema de calidad: inconsistencia de nombres en los equipos —por ejemplo, mayúsculas y minúsculas mezcladas como 'ASTRALIS' y 'Astralis'— y ligeras diferencias de fecha y hora debido a las zonas horarias de los scrapers.
+    > *"Para dar rigurosidad empírica a nuestro modelo, consolidamos una base de datos secundaria masiva a partir del raspado web de **HLTV.org**, el portal de estadísticas líder mundial de Counter-Strike. Específicamente, integramos los datasets abiertos de Kaggle de Mateus Machado para el registro histórico de 2016 a 2020 y de Griffin Desroches para el contexto moderno.
     >
-    > Un cruce estricto convencional destruía el 96.2% de nuestra información, dejándonos con una muestra minúscula de apenas 218 mapas, lo que creaba un severo sesgo de selección. 
+    > ¿Cómo está organizada esta base de datos? Cada fila representa un **único mapa jugado** en un encuentro profesional. Para cada mapa, disponemos de metadatos del partido —como los equipos, el marcador y la fecha— y de las estadísticas granulares de desempeño físico y táctico de los 5 jugadores de cada equipo. La variable objetivo o target es binaria: indica si el Equipo 1 ganó el mapa.
     >
-    > Para solucionarlo, diseñamos un pipeline de ingeniería de datos en Python: primero, convertimos todos los nombres a mayúsculas, removimos espacios y estandarizamos sinónimos tácticos. Segundo, implementamos una lógica de **cruce por ventana temporal deslizante**: emparejamos las estadísticas agregadas de los jugadores con su respectiva partida si la fecha de juego coincidía dentro de una ventana de tolerancia de **$\pm$ 3 días**.
+    > Para alimentar nuestro modelo bayesiano, realizamos dos procesos clave de ingeniería de datos. Primero, promediamos las métricas individuales de los 5 jugadores por equipo para obtener un valor colectivo, y calculamos los **diferenciales de desempeño** restando el promedio del Equipo 1 menos el del Equipo 2. Esto nos dio variables continuas simétricas como el diferencial de Rating, de daño por ronda, de impacto y de KAST.
     >
-    > Este algoritmo de unión flexible rescató la base de datos, expandiéndola a **5,745 observaciones de mapas en 3,341 partidas**. En el EDA subsiguiente, calculamos los diferenciales promedio por mapa (Equipo 1 menos Equipo 2) de cada estadística y excluimos la variable de bajas/muertes (KDR) por mostrar una colinealidad del 97% con el Rating 2.0, garantizando la independencia lineal de nuestros regresores."*
+    > El segundo proceso resolvió un grave problema de calidad: originalmente, las bases de datos de partidas y jugadores tenían nombres con mayúsculas mezcladas y ligeros desajustes horarios debidos a las zonas de los servidores de scrapers. Un cruce estricto convencional destruía el 96% de la muestra, dejándonos solo con 218 mapas, un sesgo de selección inaceptable.
+    >
+    > Diseñamos un pipeline en Python que estandarizó nombres a mayúsculas y aplicó una **ventana temporal deslizante de $\pm$ 3 días** para unir al jugador con su partida. Este algoritmo flexible rescató la base de datos, expandiendo la muestra definitiva a **5,745 mapas en 3,341 partidas** —un crecimiento de 26 veces— asegurando una representatividad total de la escena competitiva mundial."*
 
-#### **💬 Posible Pregunta Técnica de esta sección:**
-*   **Pregunta del Profesor:** *¿Cómo se realizó técnicamente la limpieza y consolidación de la base de datos, y cómo afectaron las inconsistencias y la ventana temporal al sesgo de selección?*
+#### **💬 Posibles Preguntas Técnicas de esta sección:**
+
+##### **Defensa 1: ¿De dónde salieron los datos y exactamente cómo está organizada la base de datos?**
+*   **Pregunta del Profesor:** *¿Cuál es el origen de su base de datos, qué información contiene a nivel de fila y columnas, y cómo definieron las variables predictoras a partir de estadísticas individuales?*
 *   **Respuesta de Defensa:** 
-    > *"Profesor, la fusión original fallaba porque `csgo_games.csv` registraba las fechas a nivel de día de la partida y `csgo_players.csv` registraba la hora exacta del servidor, la cual a menudo difería por desfases de huso horario de los raspadores.
+    > *"Profesor, los datos proceden del raspado de la plataforma profesional **HLTV.org**, consolidados a través de la base de datos pública de Mateus Machado en Kaggle. La base de datos original se compone de archivos relacionales: `results.csv` para partidas y `players.csv` para telemetría individual de jugadores.
     >
-    > Si hubiéramos conservado el cruce rígido inicial de 218 filas, habríamos incurrido en un sesgo de selección masivo: solo habríamos analizado partidos de equipos populares con nombres simples y horarios perfectamente sincronizados. 
+    > En nuestro dataset unificado, **cada fila es un mapa jugado**. Contiene las variables de identificación del encuentro y las métricas de rendimiento por mapa de los 10 jugadores en el servidor.
     >
-    > Al aplicar la unificación case-insensitive, eliminar espacios vacíos y construir un join condicional con una ventana temporal de $\pm$ 3 días en Pandas, logramos conservar 5,745 mapas. Esto asegura que la muestra representa fielmente todo el espectro competitivo de la escena internacional, reduciendo significativamente el error de estimación de nuestro posterior."*
+    > Para estructurar los predictores del modelo, extrajimos las 4 métricas físicas y tácticas dominantes: **Rating 2.0** (efectividad general), **ADR** (daño por ronda), **Impacto** (clutches y multikills) y **KAST** (consistencia). 
+    >
+    > Dado que el modelo predice el éxito del equipo y no del individuo, agregamos los datos a nivel grupal calculando el promedio aritmético de los 5 jugadores activos de cada equipo en ese mapa. Posteriormente, creamos variables continuas tipo **diferencial** mediante la resta de promedios: $\text{diff\_}X = \bar{X}_{T1} - \bar{X}_{T2}$. Un diferencial positivo indica que el Equipo 1 superó al Equipo 2 en esa métrica durante el mapa. El target es la variable binaria $y_i \in \{0, 1\}$, que indica si el Equipo 1 se llevó la victoria."*
+
+##### **Defensa 2: Rigor del Merge y Sesgo de Selección**
+*   **Pregunta del Profesor:** *¿Cómo se justificó técnicamente la ventana de $\pm$ 3 días para fusionar los datasets, y qué impacto tuvo sobre el sesgo de selección y la representatividad estadística del posterior?*
+*   **Respuesta de Defensa:** 
+    > *"Profesor, la diferencia en los timestamps de `results.csv` (que usaba la hora central europea) y `players.csv` (que a menudo usaba UTC o la hora local del raspador) generaba desajustes en el cruce de fechas exactas. Al mismo tiempo, inconsistencias tipográficas como 'Faze' contra 'FAZE' rompían la integridad relacional.
+    >
+    > Si nos hubiéramos limitado a una coincidencia estricta de fecha y hora, habríamos retenido apenas 218 observaciones de mapas. Esto habría inducido un severo **sesgo de selección**, ya que solo estaríamos analizando partidas de equipos muy populares cuyos datos se registraban de forma perfecta y sincrónica, ignorando al resto del circuito competitivo y reduciendo la potencia de nuestra estimación.
+    >
+    > Al aplicar mayúsculas case-insensitive y programar un merge condicional con una ventana temporal de tolerancia de $\pm$ 3 días en Pandas, logramos validar y emparejar 5,745 mapas. Esto redujo drásticamente el error estándar de nuestras estimaciones en el posterior y garantizó que la muestra represente la variabilidad real y diversa de toda la escena competitiva global de CS:GO."*
 
 ---
 
