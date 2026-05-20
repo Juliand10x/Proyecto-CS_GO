@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sustentación CS:GO - Regresión Logística Bayesiana Jerárquica</title>
+  
+  <!-- Reveal.js CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/black.min.css">
+  
+  <!-- Google Fonts & FontAwesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- MathJax for Beautiful LaTeX -->
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+
+  <style>
+    /* Reset & Fuentes */
+    :root {
+      --r-main-font: 'Plus Jakarta Sans', sans-serif;
+      --r-heading-font: 'Outfit', sans-serif;
+      --r-background-color: #0b0f19;
+      --color-primary: #3b82f6; /* Electric Blue */
+      --color-success: #10b981; /* Vibrant Green */
+      --color-warning: #f59e0b; /* Tactical Orange */
+      --color-danger: #ef4444; /* Crimson KAST */
+      --glass-bg: rgba(17, 24, 39, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Fondo degradado animado */
+    .reveal {
+      background: linear-gradient(135deg, #070a13 0%, #0c1225 50%, #15102a 100%) !important;
+      font-family: var(--r-main-font) !important;
+    }
+
+    /* Estilos de Diapositivas */
+    .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+      font-family: var(--r-heading-font) !important;
+      text-transform: none !important;
+      letter-spacing: -0.02em !important;
+      font-weight: 800 !important;
+    }
+
+    .reveal h1 {
+      font-size: 2.6em !important;
+      background: linear-gradient(135deg, #ffffff 30%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px !important;
+      line-height: 1.1 !important;
+    }
+
+    .reveal h2 {
+      font-size: 1.8em !important;
+      color: #93c5fd !important;
+      border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+      padding-bottom: 10px;
+      margin-bottom: 30px !important;
+    }
+
+    .reveal p, .reveal li {
+      font-size: 0.9em !important;
+      line-height: 1.6 !important;
+      color: #94a3b8 !important;
+    }
+
+    .reveal strong {
+      color: #f8fafc !important;
+      font-weight: 600;
+    }
+
+    /* Glassmorphism Containers */
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 30px !important;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      margin-top: 15px !important;
+      text-align: left;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      align-items: center;
+    }
+
+    /* Variables Colores */
+    .rating-color { color: var(--color-primary) !important; font-weight: 700; }
+    .adr-color { color: var(--color-success) !important; font-weight: 700; }
+    .impact-color { color: var(--color-warning) !important; font-weight: 700; }
+    .kast-color { color: var(--color-danger) !important; font-weight: 700; }
+
+    /* Flowchart Items */
+    .flow-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #93c5fd !important;
+      border-radius: 20px;
+      font-size: 0.65em !important;
+      font-weight: 700 !important;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 15px;
+    }
+
+    /* Ecuaciones destacadas */
+    .math-block {
+      background: rgba(15, 23, 42, 0.6);
+      border-left: 4px solid var(--color-primary);
+      padding: 15px !important;
+      border-radius: 4px 8px 8px 4px;
+      margin: 15px 0 !important;
+      font-family: 'Courier New', Courier, monospace;
+      text-align: center;
+    }
+
+    /* Cronómetro flotante de 7 minutos */
+    #timer-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 30px;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      font-family: var(--r-heading-font);
+      font-weight: 700;
+      font-size: 1.1em;
+      color: #e2e8f0;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    #timer-container.warning {
+      border-color: var(--color-warning);
+      color: var(--color-warning);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+    }
+
+    #timer-container.danger {
+      border-color: var(--color-danger);
+      color: var(--color-danger);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
+
+    /* Caja interactiva de Preguntas del Profesor (Q&A Toggle) */
+    .qa-box {
+      margin-top: 25px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.15);
+      padding-top: 20px;
+    }
+
+    .qa-btn {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      color: #93c5fd;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.7em !important;
+      font-family: var(--r-main-font);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+
+    .qa-btn:hover {
+      background: rgba(59, 130, 246, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .qa-content {
+      display: none;
+      background: rgba(3, 7, 18, 0.85);
+      border-left: 3px solid var(--color-warning);
+      padding: 15px 20px !important;
+      border-radius: 0 10px 10px 0;
+      margin-top: 15px !important;
+      font-size: 0.75em !important;
+      line-height: 1.5;
+      color: #cbd5e1 !important;
+    }
+
+    .qa-content p {
+      font-size: 1em !important;
+      color: #cbd5e1 !important;
+      margin: 0 !important;
+    }
+
+    .qa-title {
+      color: var(--color-warning) !important;
+      font-weight: 700;
+      margin-bottom: 8px !important;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Barra inferior con logo de la universidad y autores */
+    .custom-footer {
+      position: fixed;
+      bottom: 20px;
+      left: 30px;
+      right: 30px;
+      z-index: 9999;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65em;
+      color: #475569;
+      font-family: var(--r-heading-font);
+      pointer-events: none;
+    }
+
+    .custom-footer strong {
+      color: #64748b !important;
+    }
+
+    /* Estilo de viñetas personalizadas */
+    ul.premium-list {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    ul.premium-list li {
+      position: relative;
+      padding-left: 25px;
+      margin-bottom: 12px !important;
+    }
+
+    ul.premium-list li::before {
+      content: "\f058";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      position: absolute;
+      left: 0;
+      top: 2px;
+      color: var(--color-primary);
+    }
+
+    ul.premium-list li.warn::before {
+      color: var(--color-warning);
+      content: "\f06a";
+    }
+
+    ul.premium-list li.danger::before {
+      color: var(--color-danger);
+      content: "\f057";
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cronómetro flotante -->
+  <div id="timer-container" onclick="toggleTimer()">
+    <i class="fa-solid fa-clock-rotate-left"></i>
+    <span id="timer-display">07:00</span>
+  </div>
+
+  <!-- Barra de pie de página -->
+  <div class="custom-footer">
+    <div>Universidad Externado de Colombia · <strong>Ciencia de Datos</strong></div>
+    <div>Duarte, Jiménez, Rincón · <strong>Exposición Final</strong></div>
+  </div>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- ==================== DIAPOSITIVA 1 ==================== -->
+      <section data-transition="slide-in fade-out">
+        <div class="flow-badge">1. Selección del Problema</div>
+        <h1>Éxito Competitivo en CS:GO</h1>
+        <p style="font-size: 1.1em !important; color: #93c5fd !important; margin-bottom: 30px;">
+          Un Análisis mediante Regresión Logística Bayesiana Jerárquica
+        </p>
+        
+        <div class="glass-card" style="text-align: center; max-width: 800px; margin: 0 auto;">
+          <p style="font-size: 0.95em !important; font-style: italic;">
+            "¿Por qué el brillo técnico individual de un jugador estrella no garantiza el triunfo colectivo? 
+            ¿Y cómo modelar la probabilidad de ganar en la élite profesional de los Esports gestionando la verdadera incertidumbre?"
+          </p>
+        </div>
+        
+        <p style="font-size: 0.75em !important; margin-top: 40px; color: #475569 !important;">
+          Presiona la barra espaciadora o la flecha derecha para iniciar la presentación.
+        </p>
+      </section>
+
+      <!-- ==================== DIAPOSITIVA 2 ==================== -->
+      <section data-transition="slide-in fade-out">
+        <div class="flow-badge">2. Propuesta y Análisis Bibliográfico</div>
+        <h2>El Vacío de la Predicción Clásica</h2>
+        
+        <div class="grid-2">
+          <div class="glass-card">
+            <h4 style="color: #ef4444; margin-bottom: 15px;"><i class="fa-solid fa-circle-xmark"></i> Cajas Negras Clásicas</h4>
+            <ul class="premium-list">
+              <li class="danger">Modelos deterministas (Random Forest, Redes Neuronales).</li>
+              <li class="danger">Venden una <strong>falsa sensación de certeza</strong> con valores fijos.</li>
+              <li class="danger">Ignoran el azar y la <strong>incertidumbre epistémica</strong> de las rondas.</li>
+            </ul>
+          </div>
+          
+          <div class="glass-card" style="border-color: rgba(16, 185, 129, 0.4);">
+            <h4 style="color: #10b981; margin-bottom: 15px;"><i class="fa-solid fa-circle-check"></i> Nuestra Propuesta Bayesiana</h4>
+            <ul class="premium-list">
+              <li><strong>Honestidad Estadística:</strong> Estimación por distribuciones posteriores del nivel real de duda estadística.</li>
+              <li><strong>Enfoque Jerárquico:</strong> Agrupación contextualizada que asume asimetrías físicas y tácticas por mapa.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== DIAPOSITIVA 3 ==================== -->
+      <section data-transition="slide-in fade-out">
+        <div class="flow-badge">3. Datos, EDA y Problemas de Calidad</div>
+        <h2>Ingeniería de Datos y el Rigor del EDA</h2>
+        
+        <div class="grid-2">
+          <div class="glass-card">
+            <h4 style="color: #3b82f6; margin-bottom: 12px;"><i class="fa-solid fa-code-merge"></i> El Hito del Merge de Datos</h4>
+            <p style="margin-bottom: 15px; font-size: 0.85em !important;">
+              Nombres inconsistentes en HLTV (Mayúsculas en rendimiento `'ASTRALIS'` vs. resultados `'Astralis'`).
+            </p>
+            <div style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 8px; border-left: 3px solid var(--color-primary); font-size: 0.85em !important;">
+              <strong>Cruce Estricto Inicial:</strong> \(N = 218\) mapas.<br>
+              <strong>Limpieza Case-Insensitive + 3 días:</strong> <span class="adr-color">\(N = 5,745\) mapas</span> en <span class="rating-color">3,341 partidas</span>. <strong>(¡Muestra 26x mayor!)</strong>
+            </div>
+          </div>
+          
+          <div class="glass-card">
+            <h4 style="color: #3b82f6; margin-bottom: 12px;"><i class="fa-solid fa-chart-line"></i> Hallazgos Clave del EDA</h4>
+            <ul class="premium-list" style="font-size: 0.85em !important;">
+              <li><strong>Paridad Extrema:</strong> Distribuciones de talento de ganadores y perdedores se superponen casi al 100%.</li>
+              <li class="warn"><strong>Control de Colinealidad:</strong> Exclusión de la variable bajas/muertes (KDR) por colinealidad del <strong>97%</strong> con el Rating 2.0.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pregunta Técnica -->
+        <div class="qa-box">
+          <button class="qa-btn" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa Técnica: Sesgo de Selección</button>
+          <div class="qa-content">
+            <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Pregunta: ¿Cómo afectó la inconsistencia de nombres en la representatividad de la muestra?</p>
+            <p><strong>Respuesta:</strong> Si hubiéramos mantenido el cruce inicial, habríamos introducido un severo sesgo de selección analizando solo a los equipos cuyos nombres coincidían por puro azar. Al unificar texto case-insensitive y aplicar una ventana temporal, eliminamos este sesgo y aumentamos la representatividad estadística cubriendo todo el circuito competitivo de élite internacional con un tamaño de muestra masivo.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== DIAPOSITIVA 4 ==================== -->
+      <section data-transition="slide-in fade-out">
+        <div class="flow-badge">4. Búsqueda de Expertos y Priors</div>
+        <h2>Definición y Rigor de los Priors</h2>
+        
+        <div class="grid-2">
+          <div class="glass-card">
+            <h4 style="color: #f59e0b; margin-bottom: 15px;"><i class="fa-solid fa-user-ninja"></i> Variables del Servidor (Expertos)</h4>
+            <p style="font-size: 0.85em !important; margin-bottom: 15px;">
+              Selección de métricas clave (Diferenciales Equipo 1 - Equipo 2):
+            </p>
+            <ul class="premium-list" style="font-size: 0.8em !important;">
+              <li><strong class="rating-color">Rating 2.0:</strong> Desempeño individual y colectivo general.</li>
+              <li><strong class="adr-color">Daño ADR:</strong> Desgaste directo y volumen de fuego.</li>
+              <li><strong class="impact-color">Impacto:</strong> Jugadas críticas bajo presión (clutches, primeras bajas).</li>
+              <li><strong class="kast-color">KAST:</strong> Consistencia de apoyo del equipo.</li>
+            </ul>
+          </div>
+          
+          <div class="glass-card">
+            <h4 style="color: #f59e0b; margin-bottom: 15px;"><i class="fa-solid fa-calculator"></i> Priors Débilmente Informativos</h4>
+            <p style="font-size: 0.85em !important;">
+              Asignamos distribuciones previas que actúan como regularizadores del espacio de parámetros sin imponer sesgos teóricos rígidos:
+            </p>
+            <div class="math-block" style="font-size: 0.75em !important;">
+              $$\beta_k \sim \text{Normal}(\mu = 0, \sigma = 5)$$
+              $$\mu_\alpha \sim \text{Normal}(0, 5)$$
+              $$\sigma_\alpha \sim \text{HalfNormal}(2)$$
+            </div>
+          </div>
+        </div>
+
+        <!-- Pregunta Técnica -->
+        <div class="qa-box">
+          <button class="qa-btn" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa Técnica: ¿Por qué no usar priors planos?</button>
+          <div class="qa-content">
+            <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Pregunta: ¿Por qué usar priors normales débilmente informativos en lugar de no informativos?</p>
+            <p><strong>Respuesta:</strong> Los priors planos o uniformes infinitos en modelos jerárquicos bayesianos son computacionalmente peligrosos. Permiten que el sampler explore regiones del espacio de parámetros con densidad de probabilidad absurda, lo que produce fallas de muestreo y transiciones divergentes. Un prior \(Normal(0, 25)\) regulariza suavemente el espacio sin sesgar la estimación final, ya que el enorme volumen de datos (\(N=5,745\)) domina por completo el posterior.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== DIAPOSITIVA 5 ==================== -->
+      <section data-transition="slide-in fade-out">
+        <div class="flow-badge">5. Definición de la Likelihood e Imposibilidad de la Posterior</div>
+        <h2>El Modelo Jerárquico Bayesiano</h2>
+        
+        <div class="glass-card">
+          <h4 style="color: #93c5fd; margin-bottom: 12px;"><i class="fa-solid fa-calculator"></i> Formulación Matemática</h4>
+          <div class="math-block" style="font-size: 0.85em !important; padding: 10px !important; margin: 5px 0 !important;">
+            $$y_i \sim \text{Bernoulli}(p_i)$$
+            $$\text{logit}(p_i) = \alpha_{map[i]} + \beta_1 \cdot \text{Rating}_i + \beta_2 \cdot \text{Impacto}_i + \beta_3 \cdot \text{ADR}_i + \beta_4 \cdot \text{KAST}_i$$
+            $$\alpha_j \sim \text{Normal}(\mu_\alpha, \sigma_\alpha^2) \quad \text{para } j = 1, \dots, 9 \text{ mapas (Partial Pooling)}$$
+          </div>
+          <p style="font-size: 0.75em !important; line-height: 1.4; margin-top: 10px; text-align: center;">
+            <strong>Imposibilidad Analítica:</strong> Al usar la función de enlace logística no lineal, se rompe la conjugación matemática entre la verosimilitud de Bernoulli y los priors normales. No existe una solución en forma cerrada para la posterior; es obligatorio aproximarla numéricamente.
+          </p>
+        </div>
+
+        <!-- Pregunta Técnica -->
+        <div class="qa-box">
+          <button class="qa-btn" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa Técnica: ¿Pooled, Unpooled o Jerárquico?</button>
+          <div class="qa-content">
+            <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Pregunta: ¿Cómo justifican matemáticamente la estructura jerárquica frente a modelos agrupados o desagrupados?</p>
+            <p><strong>Respuesta:</strong> Es el balance sesgo-varianza. Un modelo agrupado (pooled) asume erróneamente que todos los mapas son idénticos tácticamente, introduciendo sesgos. Un modelo desagrupado (unpooled) estima mapas de forma aislada, generando altísima varianza en mapas con pocas observaciones. El modelo jerárquico permite agrupación parcial (partial pooling): los mapas comparten información a través de hiperpriors globales, reduciendo la varianza gracias al encogimiento bayesiano (shrinkage) de interceptos extremos hacia la media global.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== DIAPOSITIVA 6 ==================== -->
+      <section data-transition="slide-in fade-out">
+        <div class="flow-badge">6. Implementación MCMC y Convergencia</div>
+        <h2>Salud Computacional del Sampler</h2>
+        
+        <div class="grid-2">
+          <div class="glass-card">
+            <h4 style="color: #10b981; margin-bottom: 15px;"><i class="fa-solid fa-heart-pulse"></i> Diagnósticos del MCMC</h4>
+            <ul class="premium-list">
+              <li><strong>Indicador \(\hat{R}\):</strong> Entre <span class="rating-color">1.000 y 1.001</span> para todos los parámetros (convergencia matemática absoluta de las cadenas).</li>
+              <li><strong>ESS (Tamaño de muestra efectivo):</strong> Mayor a <span class="rating-color">10,000 muestras independientes</span>, descartando autocorrelación.</li>
+              <li><strong>Transiciones Divergentes:</strong> Cero advertencias computacionales en el muestreador NUTS.</li>
+            </ul>
+          </div>
+          
+          <div class="glass-card">
+            <h4 style="color: #10b981; margin-bottom: 15px;"><i class="fa-solid fa-eye"></i> Chequeo Predictivo Posterior (PPC)</h4>
+            <p style="font-size: 0.85em !important; margin-bottom: 10px;">
+              Pusimos al modelo a simular miles de partidas virtuales utilizando únicamente la posterior aproximada.
+            </p>
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 15px; font-size: 0.8em !important; text-align: center;">
+              La distribución de la proporción de victorias simulada por el modelo encajó con una <strong>precisión visual impecable</strong> sobre los datos reales empíricos observados en el servidor de juego.
+            </div>
+          </div>
+        </div>
+
+        <!-- Pregunta Técnica -->
+        <div class="qa-box">
+          <button class="qa-btn" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa Técnica: ¿Cómo garantizan la convergencia?</button>
+          <div class="qa-content">
+            <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Pregunta: ¿Cómo aseguran que las cadenas exploraron y convergieron correctamente en el espacio de parámetros posterior?</p>
+            <p><strong>Respuesta:</strong> Mediante tres criterios diagnósticos de ArviZ. Primero, el semáforo \(\hat{R}\) está estrictamente en 1.00 para todos los parámetros principales, descartando que el muestreo se haya estancado. Segundo, el ESS masivo Bulk y Tail garantiza que las estimaciones del HDI del posterior no son producto del ruido estocástico del sampling. Tercero, la verificación del PPC prueba la consistencia externa del ajuste bayesiano.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== DIAPOSITIVA 7 ==================== -->
+      <section data-transition="slide-in fade-out">
+        <div class="flow-badge">7. Interpretación de Resultados: Coeficientes</div>
+        <h2>Revelaciones y Coeficientes del Posterior</h2>
+        
+        <div class="grid-2">
+          <div class="glass-card" style="font-size: 0.8em !important; padding: 20px !important;">
+            <h4 style="color: #93c5fd; margin-bottom: 12px;"><i class="fa-solid fa-circle-nodes"></i> Parámetros de Desempeño (\(\beta_k\))</h4>
+            <ul class="premium-list">
+              <li><strong class="rating-color">Rating 2.0 (\(\beta_1 = 4.95\)):</strong> El motor rey. Intervalo HDI 94% \([2.87, 7.08]\) estrictamente positivo. Certeza absoluta.</li>
+              <li><strong class="adr-color">Daño ADR (\(\beta_3 = 0.095\)):</strong> Volumen de daño constante que desgasta e inclina la victoria de forma inequívoca.</li>
+              <li class="warn"><strong class="impact-color">Impacto Táctico (\(\beta_2 = 0.36\)):</strong> Incierto marginalmente. Su HDI cruza el cero. El show de jugadas aisladas no compensa la consistencia colectiva.</li>
+            </ul>
+          </div>
+          
+          <div class="glass-card" style="font-size: 0.8em !important; padding: 20px !important;">
+            <h4 style="color: #93c5fd; margin-bottom: 12px;"><i class="fa-solid fa-shield-halved"></i> La Paradoja de KAST y Mapas</h4>
+            <ul class="premium-list">
+              <li class="danger"><strong class="kast-color">KAST (\(\beta_4 = -5.47\)):</strong> Coeficiente fuertemente negativo. <strong>Efecto de Supresión:</strong> Al controlar daño y rating, KAST alto captura estilos pasivos de supervivencia tardía (*"saving"*). Ceder espacio táctico condena el mapa.</li>
+              <li><strong>Asimetrías por Mapa:</strong>
+                <ul>
+                  <li>Mirage favorable al local (\(p_{\text{base}} = 53.6\%\)).</li>
+                  <li>Overpass desfavorable al local (\(p_{\text{base}} = 46.0\%\)).</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pregunta Técnica -->
+        <div class="qa-box">
+          <button class="qa-btn" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa Técnica: La paradoja de KAST</button>
+          <div class="qa-content">
+            <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Pregunta: ¿Cómo se explica estadísticamente que KAST (métrica de consistencia) sea tan fuertemente negativa?</p>
+            <p><strong>Respuesta:</strong> Es un efecto de supresión por multicolinealidad condicional. Como el modelo ya controla Rating 2.0 y ADR (que capturan la agresión y efectividad física de fuego directo), el coeficiente de KAST pasa a capturar el efecto puro de la consistencia pasiva de supervivencia o asistencia sin efectividad de fuego. Esto retrata una dinámica estratégica real del juego: jugadores pasivos que se dedican a salvar armamento para cuidar su economía individual, cediendo el mapa al rival y desplomando la probabilidad de victoria colectiva.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== DIAPOSITIVA 8 ==================== -->
+      <section data-transition="slide-in fade-out">
+        <div class="flow-badge">8. Calibración y Conclusiones del Trabajo</div>
+        <h2>Validación y Cierre de la Exposición</h2>
+        
+        <div class="grid-2">
+          <div class="glass-card">
+            <h4 style="color: #10b981; margin-bottom: 15px;"><i class="fa-solid fa-gauge-high"></i> Calibración Probabilística Extraordinaria</h4>
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--color-success); padding: 15px; border-radius: 4px; font-size: 0.8em !important; margin-bottom: 15px;">
+              <strong>Expected Calibration Error (ECE):</strong> <span class="adr-color">1.2% (0.012)</span>.<br>
+              <strong>Brier Score:</strong> <span class="rating-color">0.2404</span> (azar de lanzar una moneda = 0.25).
+            </div>
+            <p style="font-size: 0.75em !important; line-height: 1.4;">
+              Si el modelo predice un 70% de probabilidades de ganar, en la realidad el equipo gana el 71.2% de las veces. Cero sobreconfianza predictiva.
+            </p>
+          </div>
+          
+          <div class="glass-card">
+            <h4 style="color: #93c5fd; margin-bottom: 15px;"><i class="fa-solid fa-graduation-cap"></i> Conclusiones del Trabajo</h4>
+            <ul class="premium-list" style="font-size: 0.8em !important;">
+              <li>La victoria se construye sobre la consistencia silenciosa y colectiva (Rating y ADR) frente a jugadas espectaculares aisladas.</li>
+              <li>Aporte de una herramienta ética y de **honestidad estadística** para entrenadores y analistas que gestiona la incertidumbre real de los Esports.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pregunta Técnica -->
+        <div class="qa-box">
+          <button class="qa-btn" onclick="toggleQA(this)"><i class="fa-solid fa-circle-question"></i> Defensa Técnica: ¿Precisión y Brier Score bajos?</button>
+          <div class="qa-content">
+            <p class="qa-title"><i class="fa-solid fa-graduation-cap"></i> Pregunta: ¿Un Brier Score de 0.2404 y AUC-ROC de 0.6117 no son métricas bajas para un modelo predictivo?</p>
+            <p><strong>Respuesta:</strong> En los Esports de élite, la paridad técnica es tan extrema y el azar es tan alto que prometer un AUC-ROC de 90% es un engaño por sobreajuste (overfitting). El AUC-ROC de 0.6117 es un valor honesto del límite real de los datos históricos antes del inicio de la partida. El Brier Score de 0.2404 es significativamente mejor que el azar (0.2500) y nuestro mayor valor es la extraordinaria calibración del 1.2% de error, que asegura que las probabilidades asignadas son genuinamente fiables.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Reveal.js JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+  
+  <script>
+    // Inicializar Reveal.js
+    Reveal.initialize({
+      hash: true,
+      controls: true,
+      progress: true,
+      center: true,
+      transition: 'fade', // transiciones premium y elegantes
+      width: 1050,
+      height: 700,
+      margin: 0.04
+    });
+
+    // Código del cronómetro flotante de 7 minutos
+    let timeRemaining = 7 * 60; // 7 minutos en segundos
+    let timerInterval = null;
+    let timerRunning = false;
+
+    const timerDisplay = document.getElementById('timer-display');
+    const timerContainer = document.getElementById('timer-container');
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timeRemaining / 60);
+      const seconds = timeRemaining % 60;
+      timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      
+      // Estilos visuales según el tiempo restante
+      if (timeRemaining <= 60 && timeRemaining > 20) {
+        timerContainer.className = 'warning';
+      } else if (timeRemaining <= 20) {
+        timerContainer.className = 'danger';
+      } else {
+        timerContainer.className = '';
+      }
+    }
+
+    function toggleTimer() {
+      if (timerRunning) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+      } else {
+        timerRunning = true;
+        timerInterval = setInterval(() => {
+          if (timeRemaining > 0) {
+            timeRemaining--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            timerRunning = false;
+          }
+        }, 1000);
+      }
+    }
+
+    // Iniciar cronómetro automáticamente cuando empieza la presentación
+    Reveal.on('slidechanged', event => {
+      // Si pasa de la portada, inicia el temporizador automáticamente si no está corriendo
+      if (event.indexh > 0 && !timerRunning && timeRemaining === 7 * 60) {
+        toggleTimer();
+      }
+    });
+
+    // Función interactiva de preguntas del profesor
+    function toggleQA(btn) {
+      const content = btn.nextElementSibling;
+      if (content.style.display === "block") {
+        content.style.display = "none";
+        btn.innerHTML = '<i class="fa-solid fa-circle-question"></i> Defensa Técnica: ' + btn.textContent.split(': ')[1];
+      } else {
+        content.style.display = "block";
+        btn.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Ocultar Respuesta';
+      }
+    }
+  </script>
+</body>
+</html>
