@@ -18,6 +18,7 @@ data/processed/
 # Archivos del SO
 .DS_Store
 Thumbs.db
+*Zone.Identifier
 
 .agents
 skills-lock.json
